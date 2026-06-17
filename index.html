@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=5">
+<title>LOCOVERB — Javi's English Gym</title>
+<meta name="theme-color" content="#16131f">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Locoverb">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#16131f;        /* deep violet-black */
+  --panel:#201c2e;
+  --panel2:#2a2440;
+  --paper:#f2eee6;      /* warm off-white text */
+  --dim:#9b93b3;
+  --yellow:#ffd23f;     /* primary accent — riso yellow */
+  --mint:#3ddc97;       /* correct */
+  --coral:#ff5c6c;      /* wrong */
+  --cyan:#5cc8ff;
+  --radius:18px;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+  --display:'Archivo Black','Arial Black',sans-serif;
+  --body:'Inter',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  background:var(--ink);
+  color:var(--paper);
+  font-family:var(--body);
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+  -webkit-text-size-adjust:100%;
+  touch-action:manipulation;
+  background-image:radial-gradient(circle at 15% 10%, #241e38 0%, transparent 45%),
+                   radial-gradient(circle at 85% 90%, #1d1830 0%, transparent 40%);
+}
+#app{max-width:760px;margin:0 auto;padding:max(24px,env(safe-area-inset-top)) 16px calc(60px + env(safe-area-inset-bottom))}
+.filled{color:var(--mint);font-family:var(--mono);font-weight:700;border-bottom:2px solid var(--mint);padding:0 5px;white-space:nowrap}
+
+/* ---------- header ---------- */
+header{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:22px;flex-wrap:wrap}
+.logo{font-family:var(--display);font-size:clamp(30px,6vw,44px);line-height:.95;letter-spacing:-1px}
+.logo em{font-style:normal;color:var(--yellow)}
+.logo small{display:block;font-family:var(--mono);font-size:11px;letter-spacing:2px;color:var(--dim);margin-top:6px;font-weight:400}
+.hud{display:flex;gap:10px;font-family:var(--mono);font-size:12px}
+.hud .chip{background:var(--panel);border:1px solid #352e4e;border-radius:999px;padding:7px 13px}
+.hud .chip b{color:var(--yellow)}
+
+/* ---------- cards / home ---------- */
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.mode{
+  background:var(--panel);border:1px solid #352e4e;border-radius:var(--radius);
+  padding:18px;cursor:pointer;text-align:left;color:var(--paper);font-family:var(--body);
+  transition:transform .12s ease, border-color .12s ease;position:relative;overflow:hidden;
+}
+.mode:hover,.mode:focus-visible{transform:translateY(-3px);border-color:var(--yellow)}
+.mode:focus-visible{outline:2px solid var(--yellow);outline-offset:2px}
+.mode h2{font-family:var(--display);font-size:19px;margin-bottom:6px}
+.mode p{color:var(--dim);font-size:13px;line-height:1.45;margin-bottom:12px}
+.mode .due{font-family:var(--mono);font-size:11px;letter-spacing:1px}
+.mode .due b{color:var(--coral)}
+.mode .due i{color:var(--cyan);font-style:normal}
+.mode .stamp{position:absolute;top:12px;right:12px;font-family:var(--mono);font-size:10px;
+  border:1.5px solid var(--yellow);color:var(--yellow);border-radius:6px;padding:3px 7px;
+  transform:rotate(6deg);letter-spacing:1px}
+.mode.red{border-color:#5e2a3a}
+.mode.red:hover{border-color:var(--coral)}
+.mode.red .stamp{border-color:var(--coral);color:var(--coral)}
+
+.row{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+.btn{
+  font-family:var(--mono);font-size:13px;font-weight:700;letter-spacing:.5px;
+  background:var(--yellow);color:#16131f;border:none;border-radius:12px;
+  padding:13px 20px;cursor:pointer;transition:transform .1s ease;
+}
+.btn:hover{transform:translateY(-2px)}
+.btn:focus-visible{outline:2px solid var(--paper);outline-offset:2px}
+.btn.ghost{background:transparent;color:var(--paper);border:1px solid #4a4168}
+.btn.small{padding:8px 14px;font-size:12px}
+
+/* ---------- play screen ---------- */
+.bar{height:8px;background:var(--panel);border-radius:99px;overflow:hidden;margin:8px 0 20px}
+.bar>div{height:100%;background:linear-gradient(90deg,var(--yellow),var(--mint));width:0%;transition:width .3s ease}
+.qcard{
+  background:var(--panel);border:1px solid #352e4e;border-radius:var(--radius);
+  padding:26px 22px;animation:pop .18s ease;
+}
+@keyframes pop{from{transform:scale(.98);opacity:.6}to{transform:scale(1);opacity:1}}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+.qtag{font-family:var(--mono);font-size:10px;letter-spacing:2px;color:var(--dim);text-transform:uppercase;margin-bottom:10px}
+.qtext{font-size:21px;font-weight:600;line-height:1.45;margin-bottom:6px}
+.qtext .blank{color:var(--yellow);font-family:var(--mono)}
+.qhint{color:var(--dim);font-size:13px;margin-bottom:18px;font-style:italic}
+.opts{display:grid;gap:10px}
+.opt{
+  background:var(--panel2);border:1px solid #3b3357;border-radius:12px;color:var(--paper);
+  padding:14px 16px;text-align:left;font-size:16px;font-family:var(--body);cursor:pointer;
+  display:flex;gap:12px;align-items:center;transition:border-color .1s;
+}
+.opt:hover{border-color:var(--yellow)}
+.opt:focus-visible{outline:2px solid var(--yellow);outline-offset:1px}
+.opt kbd{font-family:var(--mono);font-size:11px;background:#16131f;border-radius:6px;padding:3px 7px;color:var(--dim)}
+.opt.right{border-color:var(--mint);background:#1d3a2e}
+.opt.wrong{border-color:var(--coral);background:#3a1d26}
+.opt:disabled{cursor:default;opacity:.85}
+input.answer{
+  width:100%;background:var(--panel2);border:1px solid #3b3357;border-radius:12px;
+  color:var(--paper);font-size:18px;padding:14px 16px;font-family:var(--mono);
+}
+input.answer:focus{outline:2px solid var(--yellow);border-color:var(--yellow)}
+.feedback{
+  margin-top:16px;border-radius:12px;padding:14px 16px;font-size:15px;line-height:1.5;
+  display:none;animation:pop .15s ease;
+}
+.feedback.show{display:block}
+.feedback.good{background:#1d3a2e;border:1px solid var(--mint)}
+.feedback.bad{background:#3a1d26;border:1px solid var(--coral)}
+.feedback .zing{font-weight:800;display:block;margin-bottom:4px}
+.feedback .why{color:#d8d2e8;font-size:14px}
+.feedback .ex{font-family:var(--mono);font-size:13px;color:var(--cyan);display:block;margin-top:6px}
+.combo{
+  position:fixed;top:18px;right:18px;font-family:var(--display);color:var(--yellow);
+  font-size:26px;transform:rotate(6deg);text-shadow:0 2px 0 #000;pointer-events:none;display:none;
+}
+.meta{display:flex;justify-content:space-between;font-family:var(--mono);font-size:12px;color:var(--dim);margin-top:14px}
+
+/* ---------- summary / stats ---------- */
+.bigscore{font-family:var(--display);font-size:64px;color:var(--yellow);line-height:1}
+.statgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:18px 0}
+.stat{background:var(--panel);border:1px solid #352e4e;border-radius:14px;padding:14px}
+.stat .n{font-family:var(--display);font-size:26px;color:var(--yellow)}
+.stat .l{font-family:var(--mono);font-size:10px;letter-spacing:1.5px;color:var(--dim);text-transform:uppercase;margin-top:4px}
+.mastery{margin:8px 0}
+.mastery .label{display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px}
+.mastery .track{height:7px;background:var(--panel2);border-radius:99px;overflow:hidden}
+.mastery .track>div{height:100%;background:var(--mint)}
+.weak{font-size:14px;color:var(--dim);line-height:1.7}
+.weak b{color:var(--coral)}
+h3.sec{font-family:var(--mono);font-size:11px;letter-spacing:2px;color:var(--dim);text-transform:uppercase;margin:26px 0 10px;border-bottom:1px solid #352e4e;padding-bottom:6px}
+.note{font-size:12.5px;color:var(--dim);line-height:1.6;margin-top:20px}
+.note code{font-family:var(--mono);color:var(--cyan)}
+.feedback .eslink{font-family:var(--mono);font-size:11px;color:var(--dim);background:none;border:none;cursor:pointer;text-decoration:underline;padding:6px 0 0;display:block}
+.feedback .es{font-family:var(--mono);font-size:12px;color:var(--dim);margin-top:6px}
+.toast{
+  position:fixed;left:50%;bottom:24px;transform:translateX(-50%);
+  background:var(--yellow);color:#16131f;font-family:var(--mono);font-weight:700;
+  padding:10px 18px;border-radius:99px;font-size:13px;display:none;z-index:9;
+}
+@media (max-width:600px){
+  .opt{padding:16px;font-size:17px}
+  .opt kbd{display:none}
+  .qtext{font-size:19px}
+  .btn{padding:15px 20px}
+  .mode{padding:20px}
+  input.answer{font-size:17px;padding:16px}
+  .hud{font-size:11px;gap:6px}
+  .hud .chip{padding:6px 10px}
+}
+#installBtn{display:none}
+.hearbtn{
+  font-family:var(--mono);font-size:13px;font-weight:700;color:var(--cyan);
+  background:rgba(92,200,255,.08);border:1px solid #2f5a6e;border-radius:10px;
+  padding:9px 14px;margin:0 0 16px;cursor:pointer;display:inline-block;
+}
+.hearbtn:hover{background:rgba(92,200,255,.16)}
+.hearbtn:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+</style>
+</head>
+<body>
+<div class="combo" id="combo"></div>
+<div class="toast" id="toast"></div>
+<div id="app"></div>
+<script>
+'use strict';
+// ================= DATA =================
+// VERBS: [base, past, participle, EN definition, ES fallback, example]
+const VERBS=[
+["be","was/were","been","to exist; to have a state or quality","ser / estar","I was in Bogotá yesterday."],
+["become","became","become","to start to be something","convertirse en","She became my best client."],
+["begin","began","begun","to start","empezar","The meeting began late."],
+["break","broke","broken","to separate into pieces; to stop working","romper","I broke my tablet pen."],
+["bring","brought","brought","to carry something to a place","traer","He brought the new brief."],
+["build","built","built","to make by putting parts together","construir","We built the brand from scratch."],
+["buy","bought","bought","to get something by paying money","comprar","I bought a new camera last year."],
+["catch","caught","caught","to grab something moving; to notice in time","atrapar / pillar","I caught the typo just in time."],
+["choose","chose","chosen","to pick one option from several","elegir","The client chose the second logo."],
+["come","came","come","to move toward the speaker or a place","venir","The invoice came late."],
+["cost","cost","cost","to have a price of","costar","The lens cost a fortune."],
+["cut","cut","cut","to divide or shorten with something sharp","cortar","I cut the video to 30 seconds."],
+["do","did","done","to perform an action or task","hacer (actividad)","I did the research first."],
+["draw","drew","drawn","to make a picture with lines","dibujar","She drew the storyboard by hand."],
+["drink","drank","drunk","to take liquid into your body","beber","I drank too much coffee today."],
+["drive","drove","driven","to operate a vehicle","conducir","He drove to the studio."],
+["eat","ate","eaten","to put food in your mouth and swallow it","comer","We ate lunch during the render."],
+["fall","fell","fallen","to drop down; to happen on a date","caer","The deadline fell on a Sunday."],
+["feel","felt","felt","to experience an emotion or sensation","sentir","I felt confident in the pitch."],
+["fight","fought","fought","to use force or argue against someone","pelear / luchar","They fought over the budget."],
+["find","found","found","to discover something you were looking for","encontrar","I found a better font."],
+["fly","flew","flown","to travel through the air","volar","She flew to Miami for the shoot."],
+["forget","forgot","forgotten","to fail to remember","olvidar","I forgot the password again."],
+["get","got","gotten","to obtain or receive","obtener / conseguir","I got the project!"],
+["give","gave","given","to hand something to someone","dar","They gave me creative freedom."],
+["go","went","gone","to move from here to another place","ir","I went to the print shop."],
+["grow","grew","grown","to become bigger or develop","crecer","My client list grew this year."],
+["have","had","had","to possess; to experience","tener","I had three deadlines this week."],
+["hear","heard","heard","to perceive sound with your ears","oír","I heard the news this morning."],
+["hide","hid","hidden","to put something where it can't be seen","esconder","He hid the layer in Photoshop."],
+["hit","hit","hit","to strike; to reach a target or level","golpear / alcanzar","We hit the deadline."],
+["hold","held","held","to keep in your hands; to organize (a meeting)","sostener","She held the meeting online."],
+["keep","kept","kept","to continue having; to not give back","mantener / guardar","I kept all the drafts."],
+["know","knew","known","to have information or familiarity in your mind","saber / conocer","I knew the answer."],
+["leave","left","left","to go away from a place; to let something stay","dejar / salir","She left the agency in 2020."],
+["lend","lent","lent","to give something temporarily","prestar","He lent me his tripod."],
+["let","let","let","to allow","permitir / dejar","They let me choose the palette."],
+["lose","lost","lost","to no longer have; to not win","perder","We lost the pitch, sadly."],
+["make","made","made","to create or produce something","hacer (crear)","I made three logo options."],
+["mean","meant","meant","to have as a meaning; to intend","significar","What did that feedback mean?"],
+["meet","met","met","to see someone for the first time; to come together","conocer / reunirse","I met the client on Monday."],
+["pay","paid","paid","to give money for something","pagar","They paid the invoice on time."],
+["put","put","put","to place something somewhere","poner","I put the file in the folder."],
+["read","read","read","to look at words and understand them","leer","I read the contract twice."],
+["ride","rode","ridden","to travel on a bike, horse, or vehicle","montar","He rode his bike to the studio."],
+["rise","rose","risen","to go up","subir / elevarse","Prices rose last year."],
+["run","ran","run","to move fast on foot; to manage something","correr / dirigir","She ran the whole campaign."],
+["say","said","said","to speak words","decir","He said yes to the proposal."],
+["see","saw","seen","to perceive with your eyes","ver","I saw the final cut yesterday."],
+["sell","sold","sold","to give something in exchange for money","vender","We sold the idea in one call."],
+["send","sent","sent","to make something go to another place or person","enviar","I sent the proposal yesterday."],
+["set","set","set","to fix or establish; to put in position","fijar / establecer","We set the deadline for Friday."],
+["show","showed","shown","to let someone see something","mostrar","I showed them the mockups."],
+["sing","sang","sung","to make music with your voice","cantar","She sang in the jingle."],
+["sit","sat","sat","to rest on your bottom, e.g. on a chair","sentarse","We sat through a long call."],
+["sleep","slept","slept","to rest with your eyes closed, unconscious","dormir","I slept four hours before the launch."],
+["speak","spoke","spoken","to talk; to use your voice to say things","hablar","I spoke with the art director."],
+["spend","spent","spent","to use money or time","gastar / pasar tiempo","I spent all day rendering."],
+["stand","stood","stood","to be on your feet; to be noticeable (stand out)","estar de pie","The logo stood out."],
+["steal","stole","stolen","to take something that isn't yours","robar","Someone stole my concept!"],
+["take","took","taken","to get with your hands; to need (time)","tomar / llevar","The render took six hours."],
+["teach","taught","taught","to give knowledge or skills to someone","enseñar","She taught me After Effects."],
+["tell","told","told","to communicate information to someone","contar / decir","I told the client the truth."],
+["think","thought","thought","to use your mind; to have an opinion","pensar","I thought it was Tuesday."],
+["throw","threw","thrown","to send something through the air with your hand","lanzar / tirar","He threw away the first draft."],
+["understand","understood","understood","to know the meaning of something","entender","Finally I understood the brief."],
+["wake","woke","woken","to stop sleeping","despertar","I woke up at 5 for the shoot."],
+["wear","wore","worn","to have clothes on your body","llevar puesto","He wore the brand t-shirt."],
+["win","won","won","to be first; to get a prize","ganar","We won the award!"],
+["write","wrote","written","to make words on paper or screen","escribir","She wrote the copy in an hour."],
+["arise","arose","arisen","to appear or happen (a problem, situation)","surgir","A licensing issue arose mid-project."],
+["bear","bore","borne","to carry or tolerate something heavy or hard","soportar / cargar","She bore the pressure with style."],
+["beat","beat","beaten","to defeat; to hit repeatedly","vencer / golpear","We beat three agencies for this account."],
+["bend","bent","bent","to curve something; to not be straight","doblar","I bent the path tool to my will."],
+["bet","bet","bet","to risk money on a result; to be sure","apostar","I bet the client picks option B."],
+["bind","bound","bound","to tie together; to legally oblige","atar / vincular","The contract binds us until June."],
+["bite","bit","bitten","to cut with your teeth","morder","Don't bite off more than you can chew."],
+["bleed","bled","bled","to lose blood; (design) to extend past the page edge","sangrar","The image bled off the page — on purpose."],
+["blow","blew","blown","to push air; to impress (blow away)","soplar","The demo blew them away."],
+["breed","bred","bred","to produce offspring; to cause something to develop","criar / generar","Tight deadlines breed bad decisions."],
+["broadcast","broadcast","broadcast","to send out on TV, radio, or online","transmitir","They broadcast the launch live."],
+["burst","burst","burst","to explode or break open suddenly","reventar","He burst into the room with news."],
+["cast","cast","cast","to throw; to choose actors; to project (light, shadow)","lanzar / proyectar","The lamp cast a perfect shadow."],
+["cling","clung","clung","to hold on tightly","aferrarse","He clung to the old logo for years."],
+["creep","crept","crept","to move slowly and quietly","arrastrarse","Scope creep crept into the project."],
+["deal","dealt","dealt","to handle a situation; to distribute","tratar / repartir","I dealt with the feedback calmly."],
+["dig","dug","dug","to make a hole in the ground; (slang) to like","cavar","I dug through old files for the source."],
+["dive","dove","dived","to jump into water head first; to go deep into something","sumergirse","Let's dive into the analytics."],
+["feed","fed","fed","to give food; to supply data or material","alimentar","I fed the renders into the timeline."],
+["flee","fled","fled","to escape from danger quickly","huir","He fled the meeting before Q&A."],
+["forbid","forbade","forbidden","to not allow; to prohibit","prohibir","The brand book forbids stretching the logo."],
+["forgive","forgave","forgiven","to stop being angry about someone's mistake","perdonar","I forgave the late payment. Once."],
+["freeze","froze","frozen","to become solid from cold; to stop moving","congelar","The app froze during the export."],
+["hang","hung","hung","to attach from above; to suspend","colgar","We hung the prints in the gallery."],
+["hurt","hurt","hurt","to cause pain or damage","herir / doler","That feedback hurt, honestly."],
+["kneel","knelt","knelt","to go down on your knees","arrodillarse","He knelt to get the low-angle shot."],
+["lay","laid","laid","to put something down carefully (needs an object)","poner / colocar","She laid the prints on the table."],
+["lead","led","led","to guide; to be in charge","liderar / guiar","She led the rebrand project."],
+["lie","lay","lain","to be in a horizontal position (no object)","estar tumbado","The problem lay in the export settings."],
+["light","lit","lit","to make something start burning or shine","encender / iluminar","We lit the set with two softboxes."],
+["mistake","mistook","mistaken","to understand something wrongly","confundir","I mistook the deadline for Friday."],
+["overcome","overcame","overcome","to defeat a problem or difficulty","superar","She overcame her fear of presenting."],
+["oversleep","overslept","overslept","to sleep longer than you planned","quedarse dormido","I overslept and missed the call."],
+["prove","proved","proven","to show that something is true","demostrar","The numbers proved the campaign worked."],
+["quit","quit","quit","to stop doing something; to leave a job","renunciar / dejar","He quit the agency to freelance."],
+["ring","rang","rung","to make a bell sound; to call by phone","sonar / llamar","The phone rang during the recording. Of course."],
+["seek","sought","sought","to look for; to try to obtain","buscar","They sought a fresh visual identity."],
+["shake","shook","shaken","to move quickly from side to side","sacudir / temblar","We shook hands on the deal."],
+["shine","shone","shone","to produce light; to be excellent","brillar","Her portfolio shone in the review."],
+["shoot","shot","shot","to fire a weapon; to take photos or film","disparar / fotografiar","We shot the campaign in two days."],
+["shrink","shrank","shrunk","to become smaller","encoger","The budget shrank overnight."],
+["shut","shut","shut","to close","cerrar","Shut the studio door — we're recording."],
+["sink","sank","sunk","to go down below a surface, e.g. water","hundirse","My heart sank when the file corrupted."],
+["slide","slid","slid","to move smoothly over a surface","deslizar","The transition slid in from the left."],
+["sneak","snuck","snuck","to move secretly and quietly","escabullirse","I snuck an easter egg into the design."],
+["speed","sped","sped","to move very fast","acelerar","We sped through the revisions."],
+["spin","spun","spun","to turn around quickly; to present info favorably","girar","The loader icon spun for ten minutes."],
+["spit","spat","spat","to force liquid out of your mouth","escupir","The printer spat out blank pages."],
+["split","split","split","to divide into parts","dividir","We split the fee fifty-fifty."],
+["spread","spread","spread","to extend over an area; to distribute","extender / difundir","The news spread fast on social media."],
+["spring","sprang","sprung","to jump suddenly; to appear quickly","saltar / brotar","A new competitor sprang up last month."],
+["stick","stuck","stuck","to attach; to stay in one place (be stuck)","pegar / atascarse","The render got stuck at 99%."],
+["sting","stung","stung","to cause sharp pain, like an insect","picar","The rejection stung for a day or two."],
+["stink","stank","stunk","to smell very bad; to be very bad (informal)","apestar","That first draft stank, let's be honest."],
+["strike","struck","struck","to hit; to suddenly come to mind","golpear / ocurrírsele","An idea struck me in the shower."],
+["swear","swore","sworn","to promise seriously; to use bad words","jurar / maldecir","I swore I'd never use that font again."],
+["sweep","swept","swept","to clean with a brush; to move over an area quickly","barrer","The trend swept the whole industry."],
+["swim","swam","swum","to move through water using your body","nadar","I swam every morning on vacation."],
+["swing","swung","swung","to move back and forth from a fixed point","balancear","The camera swung around the product."],
+["tear","tore","torn","to pull apart, e.g. paper; to rip","rasgar / romper","He tore up the contract dramatically."],
+["undergo","underwent","undergone","to experience a process, often difficult","someterse a","The brand underwent a full redesign."],
+["undo","undid","undone","to reverse an action (Ctrl+Z, your best friend)","deshacer","I undid two hours of work by accident."],
+["upset","upset","upset","to make someone sad or worried; to disturb","molestar / alterar","The schedule change upset everyone."],
+["weep","wept","wept","to cry, usually from strong emotion","llorar","I wept when the backup actually worked."],
+["withdraw","withdrew","withdrawn","to take out (money); to remove yourself","retirar","They withdrew the offer without warning."]
+];
+
+// PHRASALS: [verb, EN definition, ES fallback, blank sentence, example]
+const PHRASALS=[
+["figure out","to understand or solve after thinking","descifrar, resolver","I need to ___ what the client really wants.","I finally figured out the animation bug."],
+["find out","to discover information","descubrir, enterarse","I want to ___ who approved this budget.","I found out the deadline moved."],
+["give up","to stop trying; to surrender","rendirse","Don't ___ on the idea yet.","He gave up smoking last year."],
+["carry on","to continue doing something","continuar","Ignore the noise and ___ working.","We carried on despite the feedback."],
+["look forward to","to feel happy about something that will happen","esperar con ganas","I ___ seeing the final cut.","I look forward to our meeting."],
+["put off","to delay until later","posponer","Let's ___ the call until Monday.","They put off the launch again."],
+["turn down","to refuse an offer; to lower the volume","rechazar","I had to ___ the project — no time.","She turned down the offer."],
+["turn up","to arrive or appear; to increase the volume","aparecer","He didn't ___ to the meeting.","The client turned up an hour late."],
+["set up","to prepare or arrange; to install","montar, configurar","I'll ___ the lights before you arrive.","We set up a new studio."],
+["take over","to take control of something","tomar el control","She will ___ the account in July.","A bigger agency took over the client."],
+["break down","to stop working (machine); to divide into parts","averiarse / desglosar","My laptop chose render day to ___.","Let's break down the brief into tasks."],
+["bring up","to mention a topic","mencionar","Don't ___ the budget yet.","He brought up a good point."],
+["call off","to cancel","cancelar","They decided to ___ the shoot.","The event was called off."],
+["come up with","to think of an idea or solution","idear","I need to ___ three concepts by Friday.","She came up with a brilliant tagline."],
+["get along","to have a good relationship","llevarse bien","I ___ well with the new team.","We get along despite the deadlines."],
+["get away with","to do something bad without being punished","salirse con la suya","You can't ___ using Comic Sans.","He got away with missing the call."],
+["get over","to recover from something bad; to stop being affected","superar","I can't ___ how good this font is.","She got over the lost pitch quickly."],
+["go over","to review or examine carefully","repasar","Let's ___ the storyboard one more time.","We went over the contract together."],
+["hang out","to spend relaxed time with people","pasar el rato","Want to ___ after the delivery?","We hung out at the gallery."],
+["look after","to take care of someone or something","cuidar","Can you ___ the files while I travel?","She looks after the brand guidelines."],
+["look into","to investigate","investigar","I'll ___ that rendering issue.","We're looking into new software."],
+["look up","to search for information in a source","buscar (información)","___ the word before guessing.","I looked up the reference online."],
+["make up","to invent (a story); to become friends again after a fight","inventar / reconciliarse","Did you ___ that statistic?","They made up after the argument."],
+["point out","to show or mention something specific","señalar","Let me ___ one problem with the layout.","He pointed out a typo on the poster."],
+["put up with","to tolerate something annoying","aguantar","I can't ___ another last-minute change.","She puts up with terrible briefs."],
+["run into","to meet by accident; to encounter a problem","encontrarse con","I ___ an old client at the café.","We ran into a licensing problem."],
+["run out of","to use all of something and have none left","quedarse sin","We ___ time — and coffee.","I ran out of disk space mid-render."],
+["show up","to arrive, especially when expected","aparecer, presentarse","The model didn't ___ for the shoot.","He showed up with new ideas."],
+["sort out","to solve a problem; to organize","resolver, organizar","I'll ___ the files tonight.","We sorted out the contract issue."],
+["work out","to be successful in the end; to find a solution; to exercise","funcionar / resolver","I hope the new schedule ___s.","Things worked out in the end."],
+["go on","to continue; to happen","continuar / pasar","What's going ___ with the invoice?","The meeting went on for hours."],
+["pick up","to lift; to collect someone/something; to learn casually","recoger / aprender","I'll ___ the prints at noon.","She picked up English from movies. Sound familiar?"],
+["come up","to be mentioned; to happen unexpectedly","surgir","Something ___ — can we reschedule?","Your name came up in the meeting."],
+["go back","to return to a place or previous state","volver","Let's ___ to the first version.","I went back to the original palette."],
+["get up","to rise from bed or a seated position","levantarse","I ___ at six to catch the light.","He got up late and missed the call."],
+["go out","to leave home for a social activity; to stop burning/working","salir","We never ___ during crunch time.","The lights went out mid-presentation."],
+["take on","to accept work or responsibility","asumir","I can't ___ another project this month.","She took on the lead role."],
+["come in","to enter; to arrive; to be received","entrar / llegar","New feedback just came ___.","The payment finally came in."],
+["take out","to remove; to bring someone somewhere as an invitation","sacar / invitar","___ the third paragraph, it's repetitive.","He took the team out for lunch."],
+["grow up","to become an adult; to mature","crecer / madurar","I ___ drawing on every surface.","She grew up in Medellín."],
+["come out","to be published or released; to become known","salir / publicarse","The new version ___s next week.","The truth came out eventually."],
+["take up","to start a hobby; to occupy space or time","empezar (hobby) / ocupar","I want to ___ 3D printing.","The files take up half my drive."],
+["turn out","to have a final result; to be discovered to be","resultar","It ___ed the client loved it.","The event turned out great."],
+["get out","to leave; to escape","salir","Let's ___ of this meeting alive.","Get out of the office once in a while."],
+["take back","to return something; to admit you said something wrong","devolver / retractarse","I ___ what I said about that font.","She took the monitor back to the store."],
+["hold on","to wait; to grip something","esperar / agarrarse","___ — I'm exporting the file now.","Hold on a second, let me check."],
+["end up","to finally be in a situation you didn't plan","terminar (acabar en)","We ___ed redesigning the whole site.","He ended up loving the bold option."],
+["get back","to return; to reply later (get back to you)","volver / responder","I'll ___ to you with a quote tomorrow.","She got back from the shoot at midnight."],
+["move on","to continue to the next thing; to stop thinking about the past","seguir adelante","Approved. Let's ___ to the next slide.","It's time to move on from that client."],
+["wake up","to stop sleeping","despertarse","I ___ before the alarm on launch days.","Wake up, the deploy finished!"],
+["hang on","to wait a moment; to hold tightly","esperar","___, the file is still uploading.","Hang on, that number can't be right."],
+["check out","to examine or look at; to leave a hotel","echar un vistazo","___ this reference I found.","Check out the new portfolio site."],
+["fill out","to complete a form with information","rellenar","Please ___ the project intake form.","I filled out the visa application."],
+["drop off","to deliver someone or something; to fall asleep; to decrease","dejar / disminuir","I'll ___ the prints on my way home.","Engagement dropped off after week two."],
+["pull off","to succeed at something difficult","lograr (algo difícil)","A 48-hour rebrand? We can ___ it.","They pulled off an impossible deadline."],
+["put on","to dress yourself with; to organize an event","ponerse / organizar","___ headphones, this mix is great.","They put on a great launch party."],
+["take off","to remove clothes; to leave the ground; to become successful fast","quitarse / despegar","Her career ___ after that campaign.","The plane took off on time, a miracle."],
+["turn on","to start a machine or light","encender","___ the second monitor, let's compare.","Turn on the AC, the render is heating the room."],
+["turn off","to stop a machine or light; to cause dislike","apagar","___ notifications when you design.","Turn off the ring light when you finish."],
+["write down","to record on paper or screen","anotar","___ the hex code before you forget it.","I wrote down every change they asked for."],
+["slow down","to reduce speed","reducir la velocidad","___ — quality needs time.","The project slowed down in December."],
+["calm down","to become less angry or excited","calmarse","___ , the backup exists. I checked.","He calmed down after seeing the numbers."],
+["cut off","to interrupt; to disconnect; to remove by cutting","interrumpir / cortar","The call got ___ mid-sentence.","They cut off the budget without notice."],
+["back up","to make a copy of data; to support someone","respaldar","___ your files. Then back them up again.","My team backed me up in the meeting."],
+["blow up","to explode; to become suddenly famous or viral; to get angry","explotar / hacerse viral","The post ___ overnight — 2M views.","The printer blew up. Figuratively. Mostly."],
+["catch up","to reach the same level or position; to update each other","ponerse al día","Let's ___ over coffee next week.","I spent Sunday catching up on emails."],
+["cheer up","to become or make happier","animar(se)","___ — the client said yes!","The good news cheered everyone up."],
+["come across","to find by accident; to give an impression","toparse con / dar la impresión","I came ___ this font in an old book.","He comes across as very confident."],
+["count on","to depend on; to trust","contar con","You can ___ me for the deadline.","We're counting on that payment."],
+["deal with","to handle a problem, task, or person","lidiar con","I'll ___ the printer drama.","She deals with difficult clients daily."],
+["dress up","to wear formal or special clothes","arreglarse / disfrazarse","No need to ___ for the video call.","He dressed up for the award ceremony."],
+["fall apart","to break into pieces; to stop working emotionally or structurally","desmoronarse","The plan fell ___ in one phone call.","The old website is falling apart."],
+["fall behind","to fail to keep the necessary pace","atrasarse","Don't ___ on the invoicing.","We fell behind schedule in week three."],
+["get by","to survive with the minimum necessary","arreglárselas","I can ___ with my current laptop. Barely.","She gets by on freelance gigs."],
+["get through","to finish something difficult; to make contact by phone","superar / comunicarse","We'll ___ this crunch together.","I couldn't get through to support."],
+["give away","to give for free; to reveal a secret","regalar / revelar","Don't ___ the ending of the campaign.","They gave away stickers at the event."],
+["give in","to finally agree after resisting","ceder","The client ___ and approved the bold version.","I gave in and bought the plugin."],
+["go ahead","to proceed; to give permission to proceed","adelante / proceder","___ and send the final files.","They gave us the go-ahead on Friday."],
+["go through","to experience something difficult; to examine carefully","pasar por / revisar","Let's ___ the contract line by line.","She went through a tough year."],
+["hand in","to submit work to an authority","entregar","___ the deliverables before midnight.","He handed in his resignation."],
+["hand out","to distribute to people","repartir","___ the brand books to the team.","They handed out samples at the fair."],
+["hold up","to delay; to remain strong","retrasar / resistir","The legal review is ___ing everything.","The old logo held up surprisingly well."],
+["keep up","to maintain the same speed or level","mantener el ritmo","I can barely ___ with the trend cycle.","Keep up the good work."],
+["let down","to disappoint someone","decepcionar","I won't ___ you — Friday it is.","The new update let everyone down."],
+["look around","to explore a place; to search in different places","mirar alrededor / explorar","___ before choosing a coworking space.","We looked around for better hosting."],
+["mess up","to make a mistake; to make something untidy","arruinar / equivocarse","Don't ___ the color profile again.","I messed up the export settings."],
+["pass out","to lose consciousness; to distribute","desmayarse / repartir","He almost ___ during the all-nighter.","She passed out flyers at the entrance."],
+["pay back","to return money; to take revenge","devolver (dinero)","I'll ___ the advance next month.","He paid back the loan in full."],
+["pay off","to give a good result after effort; to finish paying a debt","dar frutos / saldar","All those tutorials finally paid ___.","The risk paid off big time."],
+["put away","to store in the correct place","guardar","___ the gear before you leave the set.","I put away the lighting kit."],
+["put down","to place on a surface; to criticize someone","soltar / menospreciar","___ the phone and look at the layout.","Don't put down junior designers."],
+["rule out","to eliminate as a possibility","descartar","We can't ___ a full rebrand yet.","The doctor ruled out anything serious."],
+["set off","to start a journey; to cause something to start","partir / desencadenar","We ___ for the location at dawn.","The post set off a huge debate."],
+["speak up","to talk louder; to express your opinion","hablar más alto / alzar la voz","___ if the scope doesn't make sense.","She spoke up about the unrealistic timeline."],
+["stand out","to be clearly better or different","destacar","Your portfolio needs to ___.","The yellow version stands out on the shelf."],
+["stand up for","to defend a person or idea","defender","___ your rates — they're fair.","He stood up for his teammate."],
+["stay up","to not go to bed","quedarse despierto","I ___ until 3 finishing the deck.","Don't stay up the night before the pitch."],
+["throw away","to put in the trash; to waste","tirar / desperdiciar","Don't ___ the sketches — scan them.","He threw away a great opportunity."],
+["try on","to put on clothes to test the fit","probarse (ropa)","___ the brand t-shirt before we print 200.","She tried on the merch sample."],
+["try out","to test something to see if it works","probar","Let's ___ the new render engine.","I tried out three slogan options."],
+["turn into","to become something different","convertirse en","The side project ___ a full business.","The meeting turned into a brainstorm."],
+["warm up","to prepare with light activity; to become warmer","calentar","___ your hands before sketching.","The audience warmed up after the demo."],
+["watch out","to be careful","tener cuidado","___ — that template has hidden fees.","Watch out for scope creep."],
+["wear out","to become unusable from use; to exhaust","desgastar(se)","Long renders ___ this laptop fast.","The novelty wore out in a week."],
+["wrap up","to finish or conclude","concluir","Let's ___ the meeting, I have a render going.","We wrapped up the project early."]
+];
+
+// EXPRESSIONS — Chapter 1: Daily use. [expr, EN definition, ES fallback, blank, example]
+const EXPRESSIONS=[
+["get the hang of it","to learn how to do something with practice","cogerle el truco","Give me a week and I'll ___ of this software.","I'm getting the hang of After Effects."],
+["hit the ground running","to start something with energy and full speed, no slow start","empezar con todo","New client Monday — we need to ___.","She hit the ground running on day one."],
+["on the same page","in agreement; understanding things the same way","de acuerdo","Let's make sure we're ___ before the pitch.","The team is finally on the same page."],
+["in a nutshell","summarized in very few words","en resumen","___: they loved it but won't pay more.","In a nutshell, we need more time."],
+["a piece of cake","something very easy to do","pan comido","The animation? ___.","The logo update was a piece of cake."],
+["cut to the chase","to skip the introduction and go to the important point","ir al grano","Let's ___ — what's the budget?","He cut to the chase in the first minute."],
+["a ballpark figure","an approximate number, not exact","una cifra aproximada","Just give me ___, not an exact quote.","Fifty hours is a ballpark figure."],
+["touch base","to make brief contact to share updates","ponerse en contacto","Let's ___ on Friday about the edits.","I'll touch base with the printer."],
+["up in the air","not decided yet; uncertain","en el aire","The launch date is still ___.","Everything is up in the air until they sign."],
+["back to the drawing board","to start again from zero after a failure","volver a empezar","They rejected all three concepts — ___.","It's back to the drawing board for us."],
+["call it a day","to stop working for the rest of the day","terminar por hoy","It's 9 pm. Let's ___.","After the export finished, we called it a day."],
+["long story short","skipping the details to give the conclusion","resumiendo","___, the client changed everything.","Long story short, we missed the flight."],
+["it's up to you","you are the one who decides","tú decides","Blue or green? ___.","The final call is up to you."],
+["my bad","my mistake; my fault (informal)","culpa mía","Wrong file? ___, sending the right one.","My bad — I forgot the attachment."],
+["no big deal","not important; not a problem","no es para tanto","One day late is ___.","Relax, it's no big deal."],
+["off the top of my head","from memory, without checking or thinking long","de memoria","___, I'd say twenty hours of work.","Off the top of my head, it was 2019."],
+["the bottom line","the most important point or final result","lo esencial","___ is: we need it by Friday.","The bottom line is the budget doubled."],
+["think outside the box","to think creatively, beyond the obvious options","pensar creativamente","This brief begs us to ___.","They want someone who thinks outside the box."],
+["under the weather","feeling slightly sick","indispuesto","I'm a bit ___ today, can we reschedule?","He's feeling under the weather."],
+["you nailed it","you did it perfectly","lo clavaste","That presentation? ___!","She nailed the color palette."],
+["keep me posted","keep giving me updates","mantenme informado","___ about the client's answer.","I'll keep you posted on the render."],
+["I'm on it","I'm already working on that task","ya estoy en ello","Need the banner today? ___.","Don't worry, I'm on it."],
+["fair enough","that's reasonable; I accept your point","me parece justo","You want Friday instead? ___.","Fair enough, we'll change the date."],
+["it slipped my mind","I forgot it completely","se me olvidó","The invoice? Sorry, ___.","The meeting completely slipped my mind."],
+["better late than never","doing it late is better than never doing it","más vale tarde que nunca","He paid after 90 days — ___.","Better late than never, I guess."],
+["break a leg","good luck! (said before a performance or important moment)","¡mucha suerte!","Big pitch tomorrow? ___!","Break a leg at the presentation!"],
+["hang in there","stay strong, don't give up, the difficulty will pass","aguanta","Three deadlines left — ___.","Hang in there, the launch is almost done."],
+["it's not rocket science","it's not difficult to understand","no es tan complicado","Exporting a PDF ___ — read the specs.","Relax, invoicing is not rocket science."],
+["speak of the devil","said when the person you were talking about appears","hablando del rey de Roma","___ — we were just discussing your email!","Speak of the devil, there's the client calling."],
+["once in a blue moon","very rarely","muy de vez en cuando","I design print pieces ___ now.","He answers emails once in a blue moon."],
+["the ball is in your court","it's your turn to act or decide","te toca a ti","I sent the proposal — ___.","We made our offer; the ball is in their court."],
+["bite the bullet","to finally do something unpleasant you were avoiding","hacer de tripas corazón","Time to ___ and raise my rates.","I bit the bullet and bought the license."],
+["cost an arm and a leg","to be extremely expensive","costar un ojo de la cara","That cinema lens ___s.","The repair cost an arm and a leg."],
+["get out of hand","to become impossible to control","salirse de control","The revisions are ___ting ___.","The comment section got out of hand."],
+["hit the nail on the head","to describe a problem or situation exactly right","dar en el clavo","Your diagnosis ___ — it's a spacing issue.","She hit the nail on the head about the kerning."],
+["beat around the bush","to avoid saying the important thing directly","andarse con rodeos","Stop ___ing ___ — do you like it or not?","He beat around the bush for ten minutes."],
+["a blessing in disguise","something that seems bad but brings a good result","no hay mal que por bien no venga","Losing that client was ___.","The delay was a blessing in disguise."],
+["the best of both worlds","a situation with the advantages of two different things","lo mejor de dos mundos","Freelance with a retainer? ___.","Remote work gives me the best of both worlds."],
+["on thin ice","in a risky situation, close to trouble","en la cuerda floja","After two missed deadlines, I'm ___.","He's on thin ice with that client."],
+["take a rain check","to decline now but accept for a future time","dejarlo para otra ocasión","Dinner tonight? I'll ___ — render's due.","She took a rain check on the studio visit."]
+];
+
+// THE WRITERS' ROOM — Ch. 2: screen-register expressions (Better Call Saul / Suits + contemporary)
+const SCREEN=[
+["a man of my word","someone who always does what they promise","persona de palabra","Relax — I'm ___. The files arrive Friday.","He's a man of his word; payment came same day."],
+["cross to bear","a burden or responsibility you must carry, often alone","tu cruz","That impossible client is your ___.","Legacy code is every studio's cross to bear."],
+["step on someone's toes","to offend someone by interfering with their territory or authority","pisar el terreno de alguien","I don't want to ___, but the layout has issues.","He stepped on the art director's toes."],
+["waltz into","to enter casually, confidently, and often disrespectfully","entrar como Pedro por su casa","You can't just ___ the meeting an hour late.","She waltzed into the studio like she owned it."],
+["strong-arm","to force someone using pressure, threats, or intimidation","presionar / intimidar","They tried to ___ us into a lower rate.","Don't let them strong-arm you on the timeline."],
+["in a jiff","very soon; in a moment (informal)","en un segundo","The export finishes ___.","I'll have the mockups ready in a jiff."],
+["take a stab at","to attempt something, often without certainty","intentarlo","Want to ___ the headline copy?","I took a stab at the 3D version."],
+["as far as I'm concerned","in my opinion; from my point of view","en lo que a mí respecta","___, the project ended when they stopped paying.","As far as I'm concerned, v2 is final."],
+["a train wreck","a complete, visible disaster that you can't stop watching","un desastre total","That kickoff meeting was ___.","The livestream was a train wreck."],
+["under duress","forced by pressure or threats, not by free will","bajo coacción","I approved the pink logo ___, for the record.","The contract was signed under duress."],
+["nobody likes a showoff","bragging makes people dislike you","a nadie le gusta un presumido","Two awards in one email? ___.","Easy with the portfolio flexing — nobody likes a showoff."],
+["onward and upward","things will keep improving; let's continue positively","a seguir mejorando","The pitch failed, but ___.","Onward and upward — next client will be better."],
+["in the wind","gone, disappeared, impossible to find","desaparecido","The developer is ___ — no answer in days.","After the scandal, the CEO was in the wind."],
+["cut someone loose","to end a relationship with someone, e.g. firing or dropping a client","cortar con alguien","If they never pay on time, ___ them ___.","The firm cut the intern loose."],
+["shenanigans","secret or dishonest activities; mischief","trampas / travesuras","No invoice ___ — itemize everything.","There were budget shenanigans in that agency."],
+["dwell on","to keep thinking or talking about something negative","darle vueltas a","Don't ___ the lost pitch — next one's ours.","She doesn't dwell on bad reviews."],
+["throw someone under the bus","to betray or blame someone to protect yourself","echarle la culpa a alguien para salvarte","He threw the designer ___ in front of the client.","Don't throw your team under the bus."],
+["a long shot","something with a very small chance of success","muy poco probable","Winning that account is ___, but let's try.","It's a long shot, but I emailed the magazine."],
+["play hardball","to act aggressively and without compromise in a negotiation","jugar duro","They're ___ing on the licensing terms.","Time to play hardball with the rates."],
+["have someone's back","to support and protect someone","cubrirle las espaldas a alguien","Push back on the scope — I ___ your ___.","My producer always has my back."],
+["call the shots","to be the one who makes the decisions","llevar la batuta","On brand identity, the studio ___s ___.","Who calls the shots on final approval?"],
+["the gloves are off","the polite phase is over; now the fight is direct","se acabaron las contemplaciones","They sued us — ___ now.","After that email, the gloves were off."],
+["off the record","said unofficially, not to be repeated or published","extraoficialmente","___, the budget is double what they told you.","Off the record, the CEO hates the new logo."],
+["burn bridges","to destroy a relationship permanently, usually when leaving","quemar las naves","Leave the agency politely — don't ___.","He burned bridges with that goodbye email."],
+["pull strings","to use personal influence secretly to get something","mover hilos","She ___ed ___ to get us the venue.","Someone pulled strings to skip the waitlist."],
+["see this through","to continue until something is completely finished","llevarlo hasta el final","Hard project, but we'll ___.","I want to see this rebrand through."],
+["cards on the table","being totally honest about your position or intentions","poner las cartas sobre la mesa","___: I can't start until the advance arrives.","Let's put our cards on the table about budget."],
+["with all due respect","polite phrase used before disagreeing (often not respectful at all)","con todo respeto","___, that font choice is a crime.","With all due respect, the deadline is impossible."],
+["dodge a bullet","to narrowly escape a bad situation","salvarse por un pelo","That client ghosted us? We ___d ___.","We dodged a bullet not signing that contract."],
+["loose ends","small unfinished details of a task or situation","cabos sueltos","Let's tie up the ___ before invoicing.","The handoff left too many loose ends."]
+];
+
+
+const TENSES=[
+{n:"Present Simple",s:"verb (+s with he/she/it)",u:"habits, routines, permanent facts",sig:"always, usually, every day",qs:[
+ ["I ___ (work) from home every day.","work",["work","am working","worked","have worked"]],
+ ["She ___ (send) the invoices on Fridays.","sends",["sends","send","is sending","sent"]]]},
+{n:"Present Continuous",s:"am/is/are + -ing",u:"actions happening now or temporary situations",sig:"now, at the moment, these days",qs:[
+ ["Quiet — I ___ (record) a voiceover right now.","am recording",["am recording","record","recorded","have recorded"]],
+ ["We ___ (work) with a new client these days.","are working",["are working","work","worked","have work"]]]},
+{n:"Present Perfect",s:"have/has + participle",u:"past action with present result; experiences; unfinished time",sig:"already, yet, ever, just, since, for",qs:[
+ ["I ___ (finish) the logo — here it is.","have finished",["have finished","finished","am finishing","had finish"]],
+ ["She ___ (work) with big brands before.","has worked",["has worked","worked","is working","has work"]]]},
+{n:"Present Perfect Continuous",s:"have/has been + -ing",u:"action that started in the past and continues now (duration)",sig:"since 2011, for ten years, all day",qs:[
+ ["I ___ (work) as a freelancer since 2011.","have been working",["have been working","had been working","am working","worked"]],
+ ["He ___ (render) that scene for six hours.","has been rendering",["has been rendering","is rendering","rendered","has rendered for"]]]},
+{n:"Past Simple",s:"verb-ed / irregular form",u:"finished actions at a specific past time",sig:"yesterday, last week, in 2019",qs:[
+ ["I ___ (send) the proposal yesterday.","sent",["sent","have sent","sended","was sending"]],
+ ["They ___ (buy) new equipment last year.","bought",["bought","buyed","have bought","were buying"]]]},
+{n:"Past Continuous",s:"was/were + -ing",u:"action in progress at a past moment; interrupted actions",sig:"while, when, at 10 pm last night",qs:[
+ ["I ___ (edit) the video when the client called.","was editing",["was editing","edited","have edited","am editing"]],
+ ["They ___ (shoot) outside while it rained.","were shooting",["were shooting","shot","have shot","was shooting"]]]},
+{n:"Past Perfect",s:"had + participle",u:"action BEFORE another past action",sig:"before, after, by the time, already",qs:[
+ ["The client ___ (leave) when I arrived.","had left",["had left","left","has left","was leaving"]],
+ ["I ___ (finish) the draft before the meeting started.","had finished",["had finished","finished","have finished","was finished"]]]},
+{n:"Past Perfect Continuous",s:"had been + -ing",u:"duration of an action up to a past moment",sig:"for two hours before, since... until then",qs:[
+ ["I ___ (wait) for an hour when she finally answered.","had been waiting",["had been waiting","have been waiting","waited","was waited"]]]},
+{n:"Future Simple (will)",s:"will + base verb",u:"decisions now, promises, predictions",sig:"tomorrow, I promise, probably",qs:[
+ ["Don't worry, I ___ (send) it tonight.","will send",["will send","send","am send","will sent"]],
+ ["This font ___ (look) great on the poster.","will look",["will look","looks will","will looks","is look"]]]},
+{n:"Going to",s:"am/is/are going to + base verb",u:"plans and intentions; evident predictions",sig:"plan, intention, look at those clouds",qs:[
+ ["I ___ (redesign) my portfolio next month.","am going to redesign",["am going to redesign","will redesigning","go to redesign","am going redesign"]]]},
+{n:"Future Continuous",s:"will be + -ing",u:"action in progress at a future moment",sig:"this time tomorrow, at 10 am on Monday",qs:[
+ ["This time tomorrow I ___ (fly) to Cartagena.","will be flying",["will be flying","will fly being","am fly","will flying"]]]},
+{n:"Future Perfect",s:"will have + participle",u:"action completed BEFORE a future moment",sig:"by Friday, by the time, by 2030",qs:[
+ ["By Friday I ___ (finish) all the revisions.","will have finished",["will have finished","will finish have","will have finish","have finished will"]],
+ ["By the time you arrive, we ___ (set) everything up.","will have set",["will have set","will have setted","will set have","have will set"]]]}
+];
+
+// Zona Roja — built from Javi's real logged error patterns
+const MISTAKES=[
+["Yesterday I ___ the proposal to the client.",["sended","sent","send","was send"],1,"send → sent → sent. Irregular — no -ed.","I sent it this morning."],
+["Last month I ___ a new lens.",["buyed","bought","have bought","buying"],1,"buy → bought → bought. 'Last month' = past simple.","I bought it on sale."],
+["I ___ as a freelance artist since 2011.",["have been working","had been working","am working","work"],0,"Started in the past, continues now → present perfect continuous.","I have been working here since 2011."],
+["I've lived in Bogotá ___ a long time.",["since","for","during","from"],1,"FOR + duration (a long time). SINCE + starting point (2011).","for ten years / since 2016"],
+["They ___ him redesign the whole logo.",["made","made to","did","did to"],0,"make sb DO sth — no 'to'. And it's MAKE, not DO.","The client made me change the font."],
+["I need to ___ some changes to the layout.",["do","make","take","put"],1,"MAKE changes (you create them). DO is for activities/tasks.","We made three changes."],
+["We ___ business with that agency for years.",["have done","have made","did make","have maked"],0,"DO business — fixed collocation.","They do business worldwide."],
+["Every morning I ___ my bed before opening the laptop.",["do","make","build","set"],1,"MAKE the bed — collocational exception. Memorize it.","I made my bed, then made coffee."],
+["I saw that exact color ___ my dreams.",["on","in","at","of"],1,"Abstract spaces use IN: in my dreams, in my head, in listening.","It only exists in my dreams."],
+["I love ___ music while I design.",["listening","listening to","listen","hear to"],1,"LISTEN always travels with TO before the thing you hear.","I listen to jazz when I edit."],
+["I earned more money ___ than this year.",["the last year","last year","in last year","at last year"],1,"No article with last/next + time: last year, next week.","Last year was busier."],
+["___ the autocorrect's fault, I swear.",["Was","It was","Is was","Was it"],1,"English needs a subject. Even a dummy one: IT was.","It was a long day."],
+["The difference ___ the export settings.",["it's","is","it is in","its"],1,"One subject only. 'The difference' is already the subject — don't add 'it'.","The difference is the resolution."],
+["The meeting is boring. Let's break ___.",["up it","it up","up","it to up"],1,"Pronoun goes INSIDE: break it up, turn it down, figure it out.","Print it out, then send it over."],
+["I'm really ___ motion graphics this semester.",["focused in","focused on","focused at","focusing in"],1,"focused ON — always. The Spanish 'en' is the trap. The verb already carries the preposition: focused ON X.","She's focused on 3D now."],
+["Tell me ___ joke. I've heard all your ___ ones.",["another / other","other / another","another / another","other / other"],0,"another = an + other -> ONE more, singular (another joke). other = for plurals (other ones). the other = the remaining one.","Tell me another joke; the other ones were better."],
+["I missed the call ___ work.",["because","because of","for because","cause"],1,"because OF + noun. 'Because' + full clause (because I was working).","I was late because of the rain."],
+["I wish I ___ perfect grammar already.",["have","had","has","will have"],1,"wish + PAST form for present desires: I wish I had / I wish I knew.","I wish I had more time."],
+["Can you tell me what time ___?",["was the meeting","the meeting was","is the meeting was","did the meeting was"],1,"Embedded questions lose the inversion: ...what time the meeting WAS.","I don't know where the file is."],
+["___ the proposal yesterday?",["Is he sent","Did he send","Did he sent","He sent"],1,"Past questions: DID + subject + BASE verb. The past lives in 'did'.","Did you finish the draft?"],
+["The feedback was harsh. I'm feeling ___.",["overwhelming","overwhelmed","overwhelm","overwhelmingly"],1,"-ED = how YOU feel. -ING = what causes it. The brief is overwhelming; I am overwhelmed.","I'm bored because the movie is boring."],
+["The fix is ___ to the original palette.",["go back","to go back","going back to went","go to back"],1,"After 'the fix is / I hope / I need' → TO + infinitive.","The plan is to launch in May."],
+["This course is ___ university — and cheaper.",["as good as","so good as","as good than","good as"],0,"Equal comparison: AS + adjective + AS. (as = tan, as = como)","She's as fast as the deadline demands."],
+["I scrolled ___ hundreds of stock images.",["trough","through","tought","throught"],1,"THROUGH = a través de. 'Trough' is where pigs eat. Don't feed your sentences to the pigs.","I walked through the gallery."],
+["My laptop died, so I dreamed ___ a new one.",["on","of","in","at"],1,"dream OF/ABOUT something — never 'dream on' (that's an Aerosmith song).","I dream of a studio with windows."],
+["___ this prompt was not easy for me.",["Make","Making","To making","For make"],1,"A verb acting as a subject wears -ING: Making, Designing, Learning.","Learning English takes patience."],
+["I ___ the creative side of every project.",["enjoy a lot","really enjoy","am enjoy","enjoy really"],1,"The adverb goes BEFORE the verb or AFTER the object — never between verb and object. Say 'I really enjoy X' or 'I enjoy X a lot'. 'Enjoy a lot X' is the Spanish order.","I really enjoy the work. / I enjoy the work a lot."],
+["After a long render, I ___ video games to relax.",["play frequently","frequently play","play frequent","am frequently play"],1,"Frequency adverbs sit before the main verb: 'I frequently play'. Putting them after the verb and before the object ('play frequently video games') is the Spanish calque.","I usually design at night and frequently play after."],
+["Let's ___ the new brand strategy over coffee.",["talk of","talk about","talk on","discuss about"],1,"talk ABOUT a topic. Bonus trap: 'discuss' takes NO preposition — 'discuss the strategy', not 'discuss about'.","We talked about the budget for an hour."],
+["I ___ a lot of hobbies outside of work.",["got","have","am having","has"],1,"Possession = HAVE or HAVE GOT. Bare 'I got' means 'I obtained'. Say 'I have a lot of hobbies' or 'I've got a lot of hobbies'.","I have three cameras. / I've got no time."],
+["Of all my hobbies, photography is my favorite ___.",["one hobby","one","hobby one","the one"],1,"'one' REPLACES the noun — you don't keep both. 'my favorite hobby' OR 'my favorite one'. Never 'my favorite one hobby'.","The blue logo? That's the one I'd pick."],
+["I practice English ___ with this app.",["everyday","every day","everydays","all day every"],1,"every day (two words) = each day (adverb). everyday (one word) = ordinary (adjective: 'an everyday task'). You do it each day -> two words.","I open the app every day; it's an everyday habit now."],
+["I've been ___ a new portfolio layout all week.",["thinking on","thinking about","thinking to","think about"],1,"think ABOUT (or think OF) something — never 'think on' in everyday English. And 'I've been' needs the -ing form.","I'm thinking about switching tools."],
+["I've been freelancing ___, but I still get nervous before a pitch.",["for a long time ago","for a long time","since a long time","a long time ago"],1,"Your #1 nemesis across every session. 'for a long time ago' fuses two correct forms into a wrong one. Use FOR + duration ('for a long time') OR 'a long time ago' on its own — never glued together.","I've worked here for a long time. / I started a long time ago."]
+];
+
+// PREPOSITIONS OF PLACE — from the in/on/at/by video transcript.
+// [sentence with ___, correct, EN explanation, ES fallback, category]
+const PREPS=[
+["The keys are ___ my pocket.","in","IN = inside an enclosed space or container. A pocket surrounds the keys.","dentro de","IN · container"],
+["There's still milk ___ my coffee.","in","IN = inside a liquid or substance. The milk is part of the coffee.","dentro de un líquido","IN · liquid"],
+["We waited ___ the waiting room for an hour.","in","IN = inside a building or room — you are surrounded by it.","dentro de","IN · room"],
+["She grew up ___ Colombia.","in","IN = inside a country, region, city, or town. Large enclosed areas.","en (país/región)","IN · region"],
+["He plays ___ the national team.","in","IN = part of a group, surrounded by its members (most teams).","en (un grupo)","IN · group"],
+["The cat is sleeping ___ the car.","in","IN = inside an enclosed vehicle. Cars are enclosed → IN.","dentro de (coche)","IN · enclosed transport"],
+["Your laptop is ___ the top drawer.","in","IN = inside a container or enclosed space.","dentro de","IN · container"],
+["I left my notes ___ my notebook.","in","IN = inside the pages of a notebook (enclosed). Note: ON the paper, IN the notebook.","dentro de","IN · grey area"],
+["Put the mug ___ the table, please.","on","ON = resting on a flat surface. A table is a surface.","sobre","ON · surface"],
+["The poster is ___ the wall.","on","ON = on a vertical surface. Walls count as surfaces.","en (la pared)","ON · surface"],
+["My studio is ___ the fourth floor.","on","ON = on a floor/level, treated as a surface.","en (el piso)","ON · surface"],
+["She lives ___ the south coast of France.","on","ON = on a coast or border — a surface/edge. (Contrast: IN the south of France = the region.)","en (la costa)","ON · grey area"],
+["The bakery is ___ the corner of Beach Street.","on","ON = on a street corner. (ON/AT the corner can both work for streets.)","en (la esquina)","ON · grey area"],
+["I read it ___ the bus this morning.","on","ON = on public transport you can stand/walk in (bus, train, plane). Contrast: IN the car.","en (transporte público)","ON · transport"],
+["The boat drifted ___ the lake.","on","ON = floating on the surface of water.","sobre (el agua)","ON · water surface"],
+["She sits ___ the board of directors.","on","ON = the exception for high-level, often elected groups: on the board, on the committee, on the council.","en (junta/comité)","ON · high-level group"],
+["The exit is ___ the left side.","on","ON = on a side: on the left, on the right, on the south side.","en (un lado)","ON · side"],
+["I'll meet you ___ the bus stop.","at","AT = a specific point in space, like a dot on a map.","en (un punto)","AT · point"],
+["She studies ___ university.","at","AT = a public place or institution as a location: at university, at school, at the station.","en (institución)","AT · public place"],
+["The party is ___ Helen's house.","at","AT = at someone's house/place.","en casa de","AT · house"],
+["Turn left ___ the traffic light.","at","AT = a precise point in space.","en (semáforo)","AT · point"],
+["We met ___ a conference last year.","at","AT = at an event: at a party, at a conference, at a wedding.","en (un evento)","AT · event"],
+["He lives ___ 14 Eagle Road.","at","AT = at a specific address.","en (dirección)","AT · address"],
+["I'll grab lunch ___ the supermarket.","at","AT = at a shop or public place treated as a point.","en (la tienda)","AT · public place"],
+["Leave your bag ___ the door.","by","BY = next to, beside, or near something.","junto a","BY · beside"],
+["She was waiting ___ the car when I arrived.","by","BY = right next to something.","al lado de","BY · beside"],
+["They live ___ the school, just across the street.","by","BY = near / beside.","cerca de","BY · beside"],
+// ----- GREY AREAS (contrast questions) -----
+["Two cars crashed ___ the corner of 5th and Main.","at","GREY AREA — Corner: AT the corner = a point/intersection on a map. IN the corner = inside a room. Here it's an intersection → AT.","en (esquina-intersección)","GREY · corner"],
+["The lamp is ___ the corner of the living room.","in","GREY AREA — Corner: IN the corner = the inside angle of an enclosed room. Here it's inside a room → IN.","en (rincón)","GREY · corner"],
+["My kids are ___ school until 3 pm.","in","GREY AREA — School: IN school = a student, inside, learning. AT school = the general location (a visiting parent is AT school). Here they're students → IN.","en (siendo estudiante)","GREY · school"],
+["I'm ___ school right now for the parent meeting.","at","GREY AREA — School: AT school = present at the location, not necessarily as a student. A parent visiting is AT school.","en (el lugar)","GREY · school"],
+["The whole family relaxed ___ the beach.","at","GREY AREA — Beach: AT the beach = the general place/destination. ON the beach = specifically on the sand. IN the sea = in the water. General → AT.","en (la playa, lugar)","GREY · beach"],
+["The kids built a castle ___ the beach.","on","GREY AREA — Beach: ON the beach = specifically on the sand surface.","en (la arena)","GREY · beach"],
+["The swimmers are ___ the water already.","in","GREY AREA — Beach: IN the water/sea = inside the liquid.","en (el agua)","GREY · beach"],
+["She's ___ the south of France for the summer.","in","GREY AREA — Geography: IN the south of France = the enclosed region. ON the south coast = the surface/border. Region → IN.","en (la región)","GREY · geography"],
+["Write your name ___ the top of the page.","at","GREY AREA — Writing: AT the top of the page = a position/point. ON the paper = the surface. IN your notebook = enclosed. Position → AT.","en (la parte superior)","GREY · writing"],
+["I'll text you the answer ___ the morning.","in","CHUNK — Time chunks to memorize: IN the morning/afternoon/evening, AT night, ON Monday. Learn these as fixed groups.","por (la mañana)","CHUNK · time"],
+["The render finished ___ night, while I slept.","at","CHUNK — AT night (not 'in the night'). Memorize: in the morning, but AT night.","por (la noche)","CHUNK · time"],
+["He's really keen ___ typography.","on","CHUNK — Collocation: keen ON something = very interested in it. Learn the whole chunk, don't translate.","aficionado a","CHUNK · collocation"]
+];
+
+
+// CONNECTED SPEECH — concept/rule items (roja-style MC). [question, options, answerIdx, why, example]
+const FLOW=[
+["In natural speech, the soft 'uh' sound that reduced vowels collapse into is called the ___.",["schwa","diphthong","glottal stop","trill"],0,"The schwa (uh) is English's most common vowel. Reduced function words melt toward it. It is the secret to sounding smooth instead of robotic.","'banana' = buh-NAN-uh: two schwas around one stressed beat."],
+["'This is our house' — said fast and naturally, 'our' sounds like ___.",["'awa' or a quick 'uh'","'oar'","'ower'","'are'"],0,"'our' reduces to a quick 'awa'/'uh' that glides into the next word. The careful full form is what sounds robotic.","'This is awa house.'"],
+["When is 'our' NOT reduced?",["When you emphasize it — it's OURS, not yours","Always reduce it","Only at the start of a sentence","Never reduce it"],0,"Reductions disappear under contrast or emphasis. 'That call is OUR decision' keeps the full, stressed form.","'It's not your project — it's OUR project.'"],
+["When 'and' is reduced, what is actually left of it?",["just an 'n' sound","the full 'and'","only 'uh'","only 'd'"],0,"The 'a' becomes a schwa and the 'd' drops, leaving 'n'. 'and' is reduced about 90% of the time.","rock 'n' roll = rock and roll."],
+["Said at normal speed, 'black and white' sounds like ___.",["black-n-white","black-und-white","black-and-white (full)","black-en-white"],0,"and → 'n'. The d vanishes and the vowel reduces. This is standard speech, not lazy speech.","'It's not black-n-white; it's complicated.'"],
+["When DO you keep the strong, full 'and'?",["When speaking slowly, pausing to think, or stressing an added item","In every sentence","Only inside questions","Only in writing"],0,"Strong 'and' shows up when you slow down, hesitate, or emphasize an addition. Otherwise reduce it.","'Bring the camera... AND the tripod.' (added emphasis)"],
+["Reducing function words (and, our, of, to) makes your speech sound more ___.",["natural and connected","more formal","more aggressive","more childish"],0,"English is stress-timed: content words land on the beat, function words shrink between them. No reduction = choppy and robotic.","The stressed words carry the rhythm; the rest blur together."]
+];
+
+// AND-IDIOMS — [phrase, meaning(EN), ES fallback, blank sentence, reduced spelling, example]
+const IDIOMS=[
+["part and parcel","an essential, inseparable part of something","parte esencial e inseparable","Rejection is ___ of pitching for work.","part-n-parcel","Long hours are part and parcel of freelancing."],
+["hustle and bustle","busy, noisy activity, especially of a city","el ajetreo y bullicio","I love the ___ of the city center.","hustle-n-bustle","the hustle and bustle of downtown at rush hour"],
+["the ins and outs","the details and complexities of something","los entresijos","She knows the ___ of color grading.","ins-n-outs","learning the ins and outs of a new job"],
+["by and large","on the whole; generally speaking","en general / por lo general","___, the launch went smoothly.","by-n-large","By and large, the clients are reasonable."],
+["safe and sound","free from harm or danger","sano y salvo","The master files arrived ___.","safe-n-sound","The kids got home safe and sound after the storm."],
+["on pins and needles","very anxious or excited while waiting","en ascuas / nervioso esperando","I'm ___ waiting for their answer.","pins-n-needles","on pins and needles before the interview"],
+["wear and tear","damage from normal, repeated use","desgaste por el uso","The laptop shows ___ from daily renders.","wear-n-tear","a sofa with visible wear and tear"],
+["touch and go","uncertain; it could end in success or failure","incierto / pendiente de un hilo","It was ___ whether we'd hit the deadline.","touch-n-go","It was touch and go whether the flight would leave."],
+["give and take","mutual compromise and small sacrifices","toma y daca","Good collaboration needs some ___.","give-n-take","Any partnership requires give and take."],
+["smoke and mirrors","deception that makes something look better than it is","puro humo / espejismo","That whole pitch was ___.","smoke-n-mirrors","The flashy demo was all smoke and mirrors."],
+["spick and span","very clean, neat, and tidy","impecable / como los chorros del oro","I scrubbed the studio ___ before the shoot.","spick-n-span","She keeps her workspace spick and span."],
+["odds and ends","small, random leftover items","cosas sueltas / retazos","A drawer full of cables and ___.","odds-n-ends","odds and ends left over from old projects"],
+["ups and downs","a mixture of good times and bad times","altibajos","Freelancing has its ___.","ups-n-downs","Every long career has its ups and downs."],
+["night and day","completely different; in total contrast","como la noche y el día","The new monitor is ___ next to the old one.","night-n-day","The before and after are night and day."]
+];
+
+// ================= ITEM REGISTRY =================
+const ITEMS=[];
+VERBS.forEach((v,i)=>ITEMS.push({id:'v'+i,mode:'verbs',d:v}));
+PHRASALS.forEach((p,i)=>ITEMS.push({id:'p'+i,mode:'phrasals',d:p}));
+EXPRESSIONS.forEach((e,i)=>ITEMS.push({id:'e'+i,mode:'expr',d:e}));
+SCREEN.forEach((e,i)=>ITEMS.push({id:'s'+i,mode:'screen',d:e}));
+PREPS.forEach((p,i)=>ITEMS.push({id:'pr'+i,mode:'preps',d:p}));
+FLOW.forEach((x,i)=>ITEMS.push({id:'fl'+i,mode:'flow',sub:'concept',d:x}));
+IDIOMS.forEach((x,i)=>ITEMS.push({id:'id'+i,mode:'flow',sub:'idiom',d:x}));
+TENSES.forEach((t,i)=>ITEMS.push({id:'t'+i,mode:'tenses',d:t}));
+MISTAKES.forEach((m,i)=>ITEMS.push({id:'m'+i,mode:'roja',d:m}));
+
+const MODES={
+ verbs:{title:'Irregular Verbs',desc:'134 irregular verbs — essentially every one you meet outside poetry. Forms, meaning, real examples.',stamp:'134 VERBS'},
+ tenses:{title:'Tense Machine',desc:'All 12 tenses: structure, when to use each, and picking the right one under pressure.',stamp:'12 TENSES'},
+ preps:{title:'In · On · At · By',desc:'Prepositions of place, the rules AND the grey areas (corner, beach, school) that trip everyone up.',stamp:'+ GREY AREAS'},
+ flow:{title:'The Melody',desc:'Connected speech: reductions (our→“awa”, and→“n”) and 14 “___ and ___” idioms. Hear them, shadow them, stop sounding robotic.',stamp:'PRONUNCIATION'},
+ phrasals:{title:'Phrasal Verbs',desc:'The 100 most frequent. They cover the large majority of phrasal verbs you will ever hear.',stamp:'TOP 100'},
+ expr:{title:'Daily Expressions',desc:'40 everyday expressions — break a leg, bite the bullet, the ball is in your court.',stamp:'CH.1 · DAILY'},
+ screen:{title:"The Writers' Room",desc:'30 expressions mined from your shows — a man of my word, cross to bear, throw under the bus.',stamp:'CH.2 · SCREEN'},
+ roja:{title:'La Zona Roja',desc:'Your own logged mistakes, weaponized. sended, did him to, the last year — they end here.',stamp:'PERSONAL'}
+};
+
+// ================= STATE / SRS =================
+const KEY='javi_english_game_v2';
+const INTERVALS=[1,3,7,16,35,90];
+function today(){return new Date().toISOString().slice(0,10)}
+function addDays(d,n){const x=new Date(d+'T12:00:00');x.setDate(x.getDate()+n);return x.toISOString().slice(0,10)}
+function load(){try{return JSON.parse(localStorage.getItem(KEY))}catch(e){return null}}
+let S=load()||{items:{},xp:0,streakDays:0,lastPlay:null,history:[]};
+function save(){localStorage.setItem(KEY,JSON.stringify(S))}
+function rec(id){if(!S.items[id])S.items[id]={box:-1,due:null,seen:0,ok:0,bad:0};return S.items[id]}
+function schedule(id,correct){
+  const r=rec(id);
+  if(correct){
+    const wasOverdue=r.due&&r.due<today()&&r.box>0;
+    if(r.box<0)r.box=0; else if(!wasOverdue)r.box=Math.min(r.box+1,5);
+    r.ok++;
+  }else{ r.box=(r.box>=3)?r.box-2:0; r.bad++; }
+  r.seen++;
+  r.due=addDays(today(),INTERVALS[Math.max(r.box,0)]);
+}
+function dueItems(mode){const t=today();return ITEMS.filter(it=>it.mode===mode&&S.items[it.id]&&S.items[it.id].box>=0&&S.items[it.id].due<=t)}
+function newItems(mode){return ITEMS.filter(it=>it.mode===mode&&(!S.items[it.id]||S.items[it.id].box<0))}
+function touchStreak(){const t=today();if(S.lastPlay===t)return;
+  const y=addDays(t,-1);S.streakDays=(S.lastPlay===y)?S.streakDays+1:1;S.lastPlay=t;save();}
+
+// ================= QUESTION GENERATION =================
+function shuffle(a){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function pick(a){return a[Math.floor(Math.random()*a.length)]}
+function uniq4(arr){return arr.filter((x,i,a)=>a.indexOf(x)===i).slice(0,4)}
+function mc(prompt,hint,options,correct,why,ex,tag,es){
+  let opts=uniq4(shuffle(options.includes(correct)?options:[correct,...options]));
+  if(!opts.includes(correct))opts[Math.floor(Math.random()*opts.length)]=correct;
+  return{kind:'mc',prompt,hint,options:shuffle(opts),correct,correctText:correct,why,ex,tag,es};
+}
+function typed(prompt,hint,answers,why,ex,tag,es){return{kind:'typed',prompt,hint,answers,correctText:answers[0],why,ex,tag,es}}
+
+function verbQ(it){
+  const[b,p,pp,def,es,ex]=it.d;const seen=rec(it.id).seen;
+  const other=()=>pick(VERBS.filter(v=>v[0]!==b));
+  const reg=(b.endsWith('e')?b+'d':b+'ed');
+  const forms=`<b>${b}</b> · <span class="filled">${p}</span> · <span class="filled">${pp}</span>`;
+  let q;
+  if(seen===0) q=mc(`Past simple of <b>${b}</b>`,def,[p,reg,other()[1],pp!==p?pp:other()[2]],p,
+    `${b} → <b>${p}</b> → ${pp}. <i>${def}</i>`,ex,'IRREGULAR VERB',es);
+  else if(seen===1) q=mc(`Past participle of <b>${b}</b>`,`${def} — the form after have / has / had`,[pp,reg,p!==pp?p:other()[2],other()[2]],pp,
+    `${b} → ${p} → <b>${pp}</b>`,ex,'IRREGULAR VERB',es);
+  else if(seen%2===0) q=typed(`Type the <b>past simple</b> of "${b}"`,def,p.split('/'),
+    `${b} → <b>${p}</b> → ${pp}`,ex,'PRODUCTION — type from memory',es);
+  else q=typed(`Type the <b>past participle</b> of "${b}"`,`${def} — used with have / has / had`,pp.split('/'),
+    `${b} → ${p} → <b>${pp}</b>`,ex,'PRODUCTION — type from memory',es);
+  q.completed=forms+` &nbsp;<span style="color:var(--dim);font-size:15px">${def}</span>`;
+  return q;
+}
+function gapQ(it,pool,label){
+  const[v,def,es,blank,ex]=it.d;const seen=rec(it.id).seen;
+  const others=pool.filter(x=>x[0]!==v);
+  let q;
+  if(seen===0) q=mc(`What does <b>${v}</b> mean?`,`"${ex}"`,[def,pick(others)[1],pick(others)[1],pick(others)[1]],def,
+    `<b>${v}</b> — ${def}`,ex,label,es);
+  else if(seen<=2) q=mc(blank.replace(/___/g,'<span class="blank">_____</span>'),def,[v,pick(others)[0],pick(others)[0],pick(others)[0]],v,
+    `<b>${v}</b> — ${def}`,ex,label,es);
+  else q=typed(blank.replace(/___/g,'<span class="blank">_____</span>'),`Type the missing words — ${def}`,[v],
+    `<b>${v}</b> — ${def}`,ex,'PRODUCTION — type from memory',es);
+  q.completed=`<span class="filled">${v}</span> &nbsp;<span style="color:var(--dim);font-size:15px">${def}</span>`;
+  return q;
+}
+function prepQ(it){
+  const[sent,correct,why,es,cat]=it.d;
+  return mc(sent.replace(/___/g,'<span class="blank">_____</span>'),null,['in','on','at','by'],correct,why,sent.replace('___',correct),cat,es);
+}
+function tenseQ(it){
+  const t=it.d;const q=pick(t.qs);
+  return mc(q[0].replace(/___/g,'<span class="blank">_____</span>'),`Hint: signals like “${t.sig}”`,q[2],q[1],
+    `<b>${t.n}</b> — ${t.s}. Use: ${t.u}.`,q[0].replace('___',q[1]),'TENSE MACHINE');
+}
+function rojaQ(it){
+  const[q,opts,a,why,ex]=it.d;
+  return mc(q.replace(/___/g,'<span class="blank">_____</span>'),null,opts,opts[a],why,ex,'ZONA ROJA — your own logged mistakes');
+}
+function flowConceptQ(it){
+  const[q,opts,a,why,ex]=it.d;
+  const m=mc(q.replace(/___/g,'<span class="blank">_____</span>'),null,opts,opts[a],why,ex,'THE MELODY — connected speech');
+  m.completed=`${q.replace(/___/g,'…')} &nbsp;→&nbsp; <span class="filled">${m.correctText}</span>`;
+  return m;
+}
+function idiomQ(it){
+  const[phrase,mean,es,blank,reduced,ex]=it.d;const seen=rec(it.id).seen;
+  const others=IDIOMS.filter(x=>x[0]!==phrase);
+  const full=reduced.replace('-n-','-and-'),und=reduced.replace('-n-','-und-'),en=reduced.replace('-n-','-en-');
+  let q;
+  if(seen===0) q=mc(`What does <b>${phrase}</b> mean?`,`"${ex}"`,[mean,pick(others)[1],pick(others)[1],pick(others)[1]],mean,
+    `<b>${phrase}</b> — ${mean}. Reduced: “${reduced}”.`,ex,'THE MELODY — and-idiom',es);
+  else if(seen===1) q=mc(blank.replace(/___/g,'<span class="blank">_____</span>'),mean,[phrase,pick(others)[0],pick(others)[0],pick(others)[0]],phrase,
+    `<b>${phrase}</b> — ${mean}. Reduced: “${reduced}”.`,ex,'THE MELODY — and-idiom',es);
+  else if(seen===2) q=mc(`Said fast, “<b>${phrase}</b>” sounds like…`,"and → 'n': the d drops, the vowel reduces to a schwa",[reduced,full,und,en],reduced,
+    `and → 'n'. “${reduced}”. ${phrase==='hustle and bustle'?"(Bonus: both t's are silent too → huss-l-n-buss-l.)":''}`,ex,'THE MELODY — reduction',es);
+  else q=typed(blank.replace(/___/g,'<span class="blank">_____</span>'),`Type the expression — ${mean}`,[phrase],
+    `<b>${phrase}</b> — ${mean}. Reduced: “${reduced}”.`,ex,'PRODUCTION — type from memory',es);
+  q.say=reduced; // shadowing audio = the reduced form
+  q.completed=`<span class="filled">${phrase}</span> &nbsp;<span style="color:var(--dim);font-size:15px">${mean}</span>`;
+  return q;
+}
+function makeQ(it){
+  let q;
+  if(it.mode==='verbs')q=verbQ(it);
+  else if(it.mode==='phrasals')q=gapQ(it,PHRASALS,'PHRASAL VERB');
+  else if(it.mode==='expr')q=gapQ(it,EXPRESSIONS,'DAILY EXPRESSION');
+  else if(it.mode==='screen')q=gapQ(it,SCREEN,"THE WRITERS' ROOM");
+  else if(it.mode==='preps')q=prepQ(it);
+  else if(it.mode==='flow')q=(it.sub==='idiom')?idiomQ(it):flowConceptQ(it);
+  else if(it.mode==='tenses')q=tenseQ(it);
+  else q=rojaQ(it);
+  q.itemId=it.id;
+  return q;
+}
+
+// ================= GAMIFICATION =================
+const LEVELS=['Stock Photo Intern','Kerning Apprentice','Bézier Wrangler','Layer Whisperer','Gradient Sorcerer','Render Farm Boss','Typography Ninja','Creative Director of Verbs','Grammar Final Boss'];
+function levelInfo(){const lvl=Math.min(Math.floor(S.xp/300),LEVELS.length-1);return{lvl,name:LEVELS[lvl]}}
+const PRAISE=['Nailed it.','Clean. Ship it.','Chef’s kiss.','That’s a billable answer.','Approved, no revisions.','Pixel perfect.','The client loves it.','Smooth like a 60fps render.','Suits-level English.','You’re on fire (the good kind).'];
+const ROAST=['The autocorrect can’t save you here.','Back to the drawing board.','That answer needs revisions.','The client has... feedback.','Plot twist: that was the trap.','Even Comic Sans flinched.','Logged. It WILL come back.','Close, but the kerning is off.'];
+
+// ================= UI =================
+const app=document.getElementById('app');
+let session=null;
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.style.display='block';setTimeout(()=>t.style.display='none',2200)}
+
+function header(){
+  const L=levelInfo();
+  return `<header>
+    <div class="logo">LOCO<em>VERB</em><small>JAVI'S ENGLISH GYM — BOGOTÁ EDITION</small></div>
+    <div class="hud">
+      <div class="chip">XP <b>${S.xp}</b></div>
+      <div class="chip">LVL ${L.lvl+1} · <b>${L.name}</b></div>
+      <div class="chip">STREAK <b>${S.streakDays}d</b></div>
+    </div></header>`;
+}
+function home(){
+  session=null;document.onkeydown=null;
+  const cards=Object.keys(MODES).map(m=>{
+    const due=dueItems(m).length,nu=newItems(m).length,M=MODES[m];
+    return `<button class="mode ${m==='roja'?'red':''}" onclick="startRound('${m}')">
+      <span class="stamp">${M.stamp}</span>
+      <h2>${M.title}</h2><p>${M.desc}</p>
+      <span class="due">${due?`<b>${due} due for review</b> · `:''}<i>${nu} new waiting</i></span>
+    </button>`}).join('');
+  const totalDue=Object.keys(MODES).reduce((n,m)=>n+dueItems(m).length,0);
+  app.innerHTML=header()+
+    (totalDue?`<p style="font-family:var(--mono);font-size:13px;color:var(--coral);margin-bottom:14px">⏰ ${totalDue} items due — spaced repetition only works if you show up. Review first, new stuff after.</p>`:'')+
+    `<div class="grid">${cards}</div>
+     <div class="row"><button class="btn ghost" onclick="statsScreen()">My progress</button>
+       <button class="btn" id="installBtn" onclick="doInstall()">Install app</button></div>
+     <p class="note">Progress saves automatically in this browser (<code>localStorage</code>). Browsers can’t write to a folder on their own, so use <b>My progress → Export</b> to download a backup <code>.json</code> for this folder. Definitions are in English by design; tap <b>“ES”</b> under any answer only if a definition fails you.</p>`;
+}
+function startRound(mode){
+  touchStreak();
+  let queue=shuffle(dueItems(mode));
+  const fresh=shuffle(newItems(mode)).slice(0,Math.max(0,10-Math.min(queue.length,10)));
+  queue=[...queue.slice(0,14),...fresh].slice(0,14);
+  if(!queue.length){toast('Nothing due and nothing new here. Go live your life.');return}
+  session={mode,queue,idx:0,ok:0,total:0,combo:0,best:0,retries:{},results:[]};
+  renderQ();
+}
+function renderQ(){
+  const s=session;
+  if(s.idx>=s.queue.length)return summary();
+  const it=s.queue[s.idx];
+  const q=makeQ(it);s.current=q;
+  const prog=Math.round(100*s.idx/s.queue.length);
+  let body='';
+  if(q.kind==='mc'){
+    body=`<div class="opts">`+q.options.map((o,i)=>
+      `<button class="opt" data-i="${i}" onclick="answerMC(${i})"><kbd>${i+1}</kbd><span>${o}</span></button>`).join('')+`</div>`;
+  }else{
+    body=`<input class="answer" id="ans" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="type your answer + Enter">
+          <div class="row"><button class="btn" onclick="answerTyped()">Check</button></div>`;
+  }
+  app.innerHTML=header()+
+   `<div class="bar"><div style="width:${prog}%"></div></div>
+    <div class="qcard">
+      <div class="qtag">${q.tag} · ${s.idx+1}/${s.queue.length}</div>
+      <div class="qtext">${q.prompt}</div>
+      ${q.hint?`<div class="qhint">${q.hint}</div>`:''}
+      ${q.say?`<button class="hearbtn" onclick="sayIt('${q.say.replace(/'/g,"\\'")}')">🔊 Hear it &amp; shadow</button>`:''}
+      ${body}
+      <div class="feedback" id="fb"></div>
+      <div class="meta"><span>combo ×${s.combo}</span><button class="btn small ghost" onclick="home()">quit round</button></div>
+    </div>`;
+  const inp=document.getElementById('ans');
+  if(inp){inp.focus();inp.addEventListener('keydown',e=>{if(e.key==='Enter')answerTyped()})}
+  document.onkeydown=(e)=>{
+    if(s.answered&&(e.key==='Enter'||e.key===' ')){e.preventDefault();next();return}
+    if(q.kind==='mc'&&!s.answered&&['1','2','3','4'].includes(e.key)){const i=+e.key-1;if(i<q.options.length)answerMC(i)}
+  };
+}
+function grade(correct){
+  const s=session,q=s.current;
+  s.answered=true;s.total++;
+  const fb=document.getElementById('fb');
+  const esLine=q.es?`<button class="eslink" onclick="this.nextElementSibling.style.display='block';this.style.display='none'">show ES fallback</button><span class="es" style="display:none">🇪🇸 ${q.es}</span>`:'';
+  if(correct){
+    s.ok++;s.combo++;s.best=Math.max(s.best,s.combo);
+    const gain=10+Math.min(s.combo,5)*2;S.xp+=gain;
+    fb.className='feedback good show';
+    fb.innerHTML=`<span class="zing">✔ ${pick(PRAISE)} +${gain} XP</span><span class="why">${q.why}</span><span class="ex">“${q.ex}”</span>${esLine}`;
+    if(s.combo>=3){const c=document.getElementById('combo');c.textContent='COMBO ×'+s.combo;c.style.display='block';setTimeout(()=>c.style.display='none',900)}
+  }else{
+    s.combo=0;
+    fb.className='feedback bad show';
+    const right=q.kind==='mc'?q.correct:q.answers.join(' / ');
+    fb.innerHTML=`<span class="zing">✘ ${pick(ROAST)}</span><span class="why">Correct: <b>${right}</b> — ${q.why}</span><span class="ex">“${q.ex}”</span>${esLine}`;
+    const id=q.itemId;
+    if(!s.retries[id]){s.retries[id]=1;s.queue.push(it_of(id))}
+  }
+  schedule(q.itemId,correct);
+  s.results.push({id:q.itemId,ok:correct});
+  save();
+  // Show the completed question at the top: fill the blank with the answer, sitting on a line
+  const qt=document.querySelector('.qtext');
+  if(qt){
+    if(/<span class="blank">/.test(q.prompt)){
+      const parts=String(q.correctText).split(' / ');let bi=0;
+      qt.innerHTML=q.prompt.replace(/<span class="blank">_+<\/span>/g,()=>{
+        const val=(bi<parts.length)?parts[bi]:parts[parts.length-1];bi++;
+        return `<span class="filled">${val}</span>`;
+      });
+    }else if(q.completed){
+      qt.innerHTML=q.completed;
+    }
+  }
+  const meta=document.querySelector('.meta');
+  meta.innerHTML=`<span>combo ×${s.combo}</span><button class="btn small" onclick="next()">Next ⏎</button>`;
+}
+function it_of(id){return ITEMS.find(x=>x.id===id)}
+function answerMC(i){
+  const s=session,q=s.current;if(s.answered)return;
+  const correct=q.options[i]===q.correct;
+  document.querySelectorAll('.opt').forEach((b,bi)=>{
+    b.disabled=true;
+    if(q.options[bi]===q.correct)b.classList.add('right');
+    else if(bi===i&&!correct)b.classList.add('wrong');
+  });
+  grade(correct);
+}
+function answerTyped(){
+  const s=session,q=s.current;if(s.answered)return;
+  const v=(document.getElementById('ans').value||'').trim().toLowerCase();
+  if(!v)return;
+  const ok=q.answers.some(a=>a.trim().toLowerCase()===v);
+  grade(ok);
+}
+function next(){session.answered=false;session.idx++;renderQ()}
+function summary(){
+  const s=session;document.onkeydown=null;
+  const pct=s.total?Math.round(100*s.ok/s.total):0;
+  S.history.push({date:today(),mode:s.mode,ok:s.ok,total:s.total,pct});save();
+  const verdict=pct>=90?'Too easy. Next round gets harder — the law of desirable difficulty.'
+    :pct>=70?'Solid. The misses are already rescheduled to ambush you tomorrow.'
+    :pct>=50?'Rough, but this is where learning happens. Errors + retrieval = memory.'
+    :'Brutal round. Good news: every miss reset to a 1-day interval. Tomorrow, revenge.';
+  app.innerHTML=header()+
+   `<div class="qcard" style="text-align:center">
+      <div class="qtag">ROUND COMPLETE — ${MODES[s.mode].title}</div>
+      <div class="bigscore">${pct}%</div>
+      <p style="margin:8px 0 4px">${s.ok}/${s.total} correct · best combo ×${s.best}</p>
+      <p class="qhint">${verdict}</p>
+      <div class="row" style="justify-content:center">
+        <button class="btn" onclick="startRound('${s.mode}')">Another round</button>
+        <button class="btn ghost" onclick="home()">Home</button>
+      </div></div>`;
+}
+function statsScreen(){
+  const L=levelInfo();
+  const mastery=Object.keys(MODES).map(m=>{
+    const its=ITEMS.filter(i=>i.mode===m);
+    const mature=its.filter(i=>S.items[i.id]&&S.items[i.id].box>=3).length;
+    const started=its.filter(i=>S.items[i.id]&&S.items[i.id].box>=0).length;
+    const pct=Math.round(100*mature/its.length);
+    return `<div class="mastery"><div class="label"><span>${MODES[m].title}</span><span>${started}/${its.length} started · ${pct}% long-term</span></div>
+      <div class="track"><div style="width:${pct}%"></div></div></div>`}).join('');
+  function lbl(i){return i.mode==='verbs'?i.d[0]:i.mode==='tenses'?i.d.n:i.mode==='preps'?i.d[4]:i.mode==='roja'?i.d[0]:i.d[0]}
+  const weak=ITEMS.filter(i=>S.items[i.id]&&S.items[i.id].bad>=2)
+    .sort((a,b)=>S.items[b.id].bad-S.items[a.id].bad).slice(0,8)
+    .map(i=>`<div><b>×${S.items[i.id].bad}</b> ${lbl(i)}</div>`).join('')||'<div>No repeat offenders yet.</div>';
+  const last=S.history.slice(-7).reverse().map(h=>`<div>${h.date} · ${MODES[h.mode].title}: <b style="color:var(--mint)">${h.pct}%</b> (${h.ok}/${h.total})</div>`).join('')||'<div>No rounds played yet.</div>';
+  app.innerHTML=header()+
+   `<div class="statgrid">
+      <div class="stat"><div class="n">${S.xp}</div><div class="l">total XP</div></div>
+      <div class="stat"><div class="n">${S.streakDays}</div><div class="l">day streak</div></div>
+      <div class="stat"><div class="n">${L.name}</div><div class="l">current rank</div></div>
+    </div>
+    <h3 class="sec">Long-term memory per chapter (items at 16+ day intervals)</h3>${mastery}
+    <h3 class="sec">Repeat offenders — your weakest items</h3><div class="weak">${weak}</div>
+    <h3 class="sec">Recent rounds (retention %)</h3><div class="weak">${last}</div>
+    <div class="row">
+      <button class="btn" onclick="exportProgress()">Export progress (.json)</button>
+      <button class="btn ghost" onclick="document.getElementById('imp').click()">Import backup</button>
+      <button class="btn ghost" onclick="if(confirm('Wipe ALL progress?')){localStorage.removeItem(KEY);location.reload()}">Reset</button>
+      <button class="btn ghost" onclick="home()">Home</button>
+    </div>
+    <input type="file" id="imp" accept=".json" style="display:none" onchange="importProgress(event)">
+    <p class="note">Export this file into the game’s folder after big sessions — it’s your backup and your progress report. You can paste it to your coach for analysis.</p>`;
+}
+function exportProgress(){
+  const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download=`locoverb_progress_${today()}.json`;a.click();toast('Backup downloaded.');
+}
+function importProgress(ev){
+  const f=ev.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=()=>{try{S=JSON.parse(r.result);save();toast('Progress restored.');home()}catch(e){toast('That file is not a valid backup.')}};
+  r.readAsText(f);
+}
+// ================= PWA: install + offline =================
+let deferredPrompt=null;
+function sayIt(t){try{const u=new SpeechSynthesisUtterance(t);u.lang='en-US';u.rate=0.85;window.speechSynthesis.cancel();window.speechSynthesis.speak(u);}catch(e){toast('Speech not available on this browser.');}}
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;
+  const b=document.getElementById('installBtn');if(b)b.style.display='inline-block';});
+function doInstall(){if(!deferredPrompt){toast('Open the browser menu → “Add to Home screen”.');return}
+  deferredPrompt.prompt();deferredPrompt.userChoice.finally(()=>{deferredPrompt=null;
+    const b=document.getElementById('installBtn');if(b)b.style.display='none';});}
+window.addEventListener('appinstalled',()=>toast('Installed. Open it from your home screen.'));
+if('serviceWorker' in navigator && location.protocol.startsWith('http')){
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+home();
+
+</script>
+</body>
+</html>
