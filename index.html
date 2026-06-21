@@ -470,7 +470,9 @@ const EXPRESSIONS=[
 ["a blessing in disguise","something that seems bad but brings a good result","no hay mal que por bien no venga","Losing that client was ___.","The delay was a blessing in disguise."],
 ["the best of both worlds","a situation with the advantages of two different things","lo mejor de dos mundos","Freelance with a retainer? ___.","Remote work gives me the best of both worlds."],
 ["on thin ice","in a risky situation, close to trouble","en la cuerda floja","After two missed deadlines, I'm ___.","He's on thin ice with that client."],
-["take a rain check","to decline now but accept for a future time","dejarlo para otra ocasión","Dinner tonight? I'll ___ — render's due.","She took a rain check on the studio visit."]
+["take a rain check","to decline now but accept for a future time","dejarlo para otra ocasión","Dinner tonight? I'll ___ — render's due.","She took a rain check on the studio visit."],
+["shake it off","to dismiss a bad feeling or setback and move on","quitárselo de encima","One harsh comment — just ___ and keep going.","Bad review? Shake it off. (Doechii, 'Anxiety')"],
+["bounce back","to recover quickly after a setback or difficulty","recuperarse rápido","We lost the client, but we'll ___.","She bounced back after a rough quarter."]
 ];
 
 // THE WRITERS' ROOM — Ch. 2: screen-register expressions (Better Call Saul / Suits + contemporary)
@@ -504,7 +506,9 @@ const SCREEN=[
 ["cards on the table","being totally honest about your position or intentions","poner las cartas sobre la mesa","___: I can't start until the advance arrives.","Let's put our cards on the table about budget."],
 ["with all due respect","polite phrase used before disagreeing (often not respectful at all)","con todo respeto","___, that font choice is a crime.","With all due respect, the deadline is impossible."],
 ["dodge a bullet","to narrowly escape a bad situation","salvarse por un pelo","That client ghosted us? We ___d ___.","We dodged a bullet not signing that contract."],
-["loose ends","small unfinished details of a task or situation","cabos sueltos","Let's tie up the ___ before invoicing.","The handoff left too many loose ends."]
+["loose ends","small unfinished details of a task or situation","cabos sueltos","Let's tie up the ___ before invoicing.","The handoff left too many loose ends."],
+["try me","(slang) to test, provoke, or challenge someone — often a warning; 'it keeps trying me' = it won't stop testing me","ponerme a prueba / retarme","This printer keeps ___ — third jam today.","Go ahead, try me. (Doechii, 'Anxiety')"],
+["no mojo","no energy, spark, or confidence left (mojo = your personal drive/charm)","sin chispa / sin energía","Three all-nighters in, I've got ___.","I lost my mojo, then got it back after a break."]
 ];
 
 
@@ -657,6 +661,23 @@ const IDIOMS=[
 ["night and day","completely different; in total contrast","como la noche y el día","The new monitor is ___ next to the old one.","night-n-day","The before and after are night and day."]
 ];
 
+
+// WORD BANK — single-word vocabulary. [word, EN definition, ES fallback, example]
+const VOCAB=[
+["plush","luxurious, expensive and comfortable (also: a soft stuffed toy)","lujoso / de peluche","They booked a plush hotel for the shoot."],
+["yield","to produce or give; OR to give way and let others go first","producir / ceder","Good light yields better photos. / Yield to oncoming traffic."],
+["scorn","strong contempt; to look down on someone or something with disrespect","desprecio / desdén","She poured scorn on the lazy logo."],
+["drill","a tool that bores holes; OR a repeated practice exercise (and the verb, to practice repeatedly)","taladro / ejercicio repetido","We drill verbs daily. / He grabbed a drill for the shelf."],
+["groin","the area of the body where the legs meet the abdomen","la ingle","The player pulled a groin muscle mid-game."],
+["scrubs","the loose clothing doctors and nurses wear (to scrub = to clean hard)","uniforme médico / fregar","The surgeon changed into fresh scrubs."],
+["retrieval","getting something back, or recalling it from memory","recuperación / recuerdo","Spaced retrieval is exactly how this app builds memory."],
+["safe harbor","a safe place; OR (figurative) protection from danger or legal penalty","puerto seguro / refugio","The contract has a safe harbor clause."],
+["nitpick","to criticize tiny, unimportant details","poner pegas / criticar nimiedades","Stop nitpicking the kerning and ship it."],
+["straight down","directly downward, in a vertical line, without curving","recto hacia abajo","The cliff dropped straight down to the sea."],
+["slay","(slang) to do something impressively well; OR (literal) to kill","arrasar / matar","You slayed that presentation! / The knight slayed the dragon."],
+["lean","to bend or rest against something; to rely on; OR (adjective) thin, with little fat","apoyarse / magro","Lean the print against the wall. / A lean budget, lean meat."]
+];
+
 // ================= ITEM REGISTRY =================
 const ITEMS=[];
 VERBS.forEach((v,i)=>ITEMS.push({id:'v'+i,mode:'verbs',d:v}));
@@ -666,6 +687,7 @@ SCREEN.forEach((e,i)=>ITEMS.push({id:'s'+i,mode:'screen',d:e}));
 PREPS.forEach((p,i)=>ITEMS.push({id:'pr'+i,mode:'preps',d:p}));
 FLOW.forEach((x,i)=>ITEMS.push({id:'fl'+i,mode:'flow',sub:'concept',d:x}));
 IDIOMS.forEach((x,i)=>ITEMS.push({id:'id'+i,mode:'flow',sub:'idiom',d:x}));
+VOCAB.forEach((x,i)=>ITEMS.push({id:'w'+i,mode:'vocab',d:x}));
 TENSES.forEach((t,i)=>ITEMS.push({id:'t'+i,mode:'tenses',d:t}));
 MISTAKES.forEach((m,i)=>ITEMS.push({id:'m'+i,mode:'roja',d:m}));
 
@@ -676,7 +698,8 @@ const MODES={
  flow:{title:'The Melody',desc:'Connected speech: reductions (our→“awa”, and→“n”) and 14 “___ and ___” idioms. Hear them, shadow them, stop sounding robotic.',stamp:'PRONUNCIATION'},
  phrasals:{title:'Phrasal Verbs',desc:'The 100 most frequent. They cover the large majority of phrasal verbs you will ever hear.',stamp:'TOP 100'},
  expr:{title:'Daily Expressions',desc:'40 everyday expressions — break a leg, bite the bullet, the ball is in your court.',stamp:'CH.1 · DAILY'},
- screen:{title:"The Writers' Room",desc:'30 expressions mined from your shows — a man of my word, cross to bear, throw under the bus.',stamp:'CH.2 · SCREEN'},
+ screen:{title:"The Writers' Room",desc:'32 expressions mined from your shows and music — a man of my word, cross to bear, no mojo, try me.',stamp:'CH.2 · SCREEN'},
+ vocab:{title:'Word Bank',desc:'Single words you keep hearing but couldn’t pin down — plush, yield, scorn, slay, lean. Meaning, then production.',stamp:'NEW WORDS'},
  roja:{title:'La Zona Roja',desc:'Your own logged mistakes, weaponized. sended, did him to, the last year — they end here.',stamp:'PERSONAL'}
 };
 
@@ -781,6 +804,20 @@ function idiomQ(it){
   q.completed=`<span class="filled">${phrase}</span> &nbsp;<span style="color:var(--dim);font-size:15px">${mean}</span>`;
   return q;
 }
+function vocabQ(it){
+  const[w,def,es,ex]=it.d;const seen=rec(it.id).seen;
+  const others=VOCAB.filter(x=>x[0]!==w);
+  let q;
+  if(seen===0) q=mc(`What does <b>${w}</b> mean?`,`"${ex}"`,[def,pick(others)[1],pick(others)[1],pick(others)[1]],def,
+    `<b>${w}</b> — ${def}`,ex,'WORD BANK',es);
+  else if(seen===1) q=mc(`Which word means: <i>${def}</i>`,null,[w,pick(others)[0],pick(others)[0],pick(others)[0]],w,
+    `<b>${w}</b> — ${def}`,ex,'WORD BANK',es);
+  else q=typed(`Type the word that means: <i>${def}</i>`,`"${ex.replace(new RegExp(w,'i'),'____')}"`,[w],
+    `<b>${w}</b> — ${def}`,ex,'PRODUCTION — type from memory',es);
+  q.say=w;
+  q.completed=`<span class="filled">${w}</span> &nbsp;<span style="color:var(--dim);font-size:15px">${def}</span>`;
+  return q;
+}
 function makeQ(it){
   let q;
   if(it.mode==='verbs')q=verbQ(it);
@@ -789,6 +826,7 @@ function makeQ(it){
   else if(it.mode==='screen')q=gapQ(it,SCREEN,"THE WRITERS' ROOM");
   else if(it.mode==='preps')q=prepQ(it);
   else if(it.mode==='flow')q=(it.sub==='idiom')?idiomQ(it):flowConceptQ(it);
+  else if(it.mode==='vocab')q=vocabQ(it);
   else if(it.mode==='tenses')q=tenseQ(it);
   else q=rojaQ(it);
   q.itemId=it.id;
