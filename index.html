@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=5">
+<title>LOCOVERB — Javi's English Gym</title>
+<meta name="theme-color" content="#16131f">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Locoverb">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#16131f;        /* deep violet-black */
+  --panel:#201c2e;
+  --panel2:#2a2440;
+  --paper:#f2eee6;      /* warm off-white text */
+  --dim:#9b93b3;
+  --yellow:#ffd23f;     /* primary accent — riso yellow */
+  --mint:#3ddc97;       /* correct */
+  --coral:#ff5c6c;      /* wrong */
+  --cyan:#5cc8ff;
+  --radius:18px;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+  --display:'Archivo Black','Arial Black',sans-serif;
+  --body:'Inter',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  background:var(--ink);
+  color:var(--paper);
+  font-family:var(--body);
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+  -webkit-text-size-adjust:100%;
+  touch-action:manipulation;
+  background-image:radial-gradient(circle at 15% 10%, #241e38 0%, transparent 45%),
+                   radial-gradient(circle at 85% 90%, #1d1830 0%, transparent 40%);
+}
+#app{max-width:760px;margin:0 auto;padding:max(24px,env(safe-area-inset-top)) 16px calc(60px + env(safe-area-inset-bottom))}
+.filled{color:var(--mint);font-family:var(--mono);font-weight:700;border-bottom:2px solid var(--mint);padding:0 5px;white-space:nowrap}
+
+/* ---------- header ---------- */
+header{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:22px;flex-wrap:wrap}
+.logo{background:none;border:none;padding:0;text-align:left;cursor:pointer;color:var(--paper);font-family:var(--display);font-size:clamp(30px,6vw,44px);line-height:.95;letter-spacing:-1px}
+.logo em{font-style:normal;color:var(--yellow)}
+.logo small{display:block;font-family:var(--mono);font-size:11px;letter-spacing:2px;color:var(--dim);margin-top:6px;font-weight:400}
+.hud{display:flex;gap:10px;font-family:var(--mono);font-size:12px}
+.hud .chip{background:var(--panel);border:1px solid #352e4e;border-radius:999px;padding:7px 13px}
+.hud .chip b{color:var(--yellow)}
+
+/* ---------- cards / home ---------- */
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.mode{
+  background:var(--panel);border:1px solid #352e4e;border-radius:var(--radius);
+  padding:18px;cursor:pointer;text-align:left;color:var(--paper);font-family:var(--body);
+  transition:transform .12s ease, border-color .12s ease;position:relative;overflow:hidden;
+}
+.mode:hover,.mode:focus-visible{transform:translateY(-3px);border-color:var(--yellow)}
+.mode:focus-visible{outline:2px solid var(--yellow);outline-offset:2px}
+.mode h2{font-family:var(--display);font-size:19px;margin-bottom:6px}
+.mode p{color:var(--dim);font-size:13px;line-height:1.45;margin-bottom:12px}
+.mode .due{font-family:var(--mono);font-size:11px;letter-spacing:1px}
+.mode .due b{color:var(--coral)}
+.mode .due i{color:var(--cyan);font-style:normal}
+.mode .stamp{position:absolute;top:12px;right:12px;font-family:var(--mono);font-size:10px;
+  border:1.5px solid var(--yellow);color:var(--yellow);border-radius:6px;padding:3px 7px;
+  transform:rotate(6deg);letter-spacing:1px}
+.mode.red{border-color:#5e2a3a}
+.mode.red:hover{border-color:var(--coral)}
+.mode.red .stamp{border-color:var(--coral);color:var(--coral)}
+
+.row{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+.btn{
+  font-family:var(--mono);font-size:13px;font-weight:700;letter-spacing:.5px;
+  background:var(--yellow);color:#16131f;border:none;border-radius:12px;
+  padding:13px 20px;cursor:pointer;transition:transform .1s ease;
+}
+.btn:hover{transform:translateY(-2px)}
+.btn:focus-visible{outline:2px solid var(--paper);outline-offset:2px}
+.btn.ghost{background:transparent;color:var(--paper);border:1px solid #4a4168}
+.btn.small{padding:8px 14px;font-size:12px}
+
+/* ---------- play screen ---------- */
+.bar{height:8px;background:var(--panel);border-radius:99px;overflow:hidden;margin:8px 0 20px}
+.bar>div{height:100%;background:linear-gradient(90deg,var(--yellow),var(--mint));width:0%;transition:width .3s ease}
+.qcard{
+  background:var(--panel);border:1px solid #352e4e;border-radius:var(--radius);
+  padding:26px 22px;animation:pop .18s ease;
+}
+@keyframes pop{from{transform:scale(.98);opacity:.6}to{transform:scale(1);opacity:1}}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+.qtag{font-family:var(--mono);font-size:10px;letter-spacing:2px;color:var(--dim);text-transform:uppercase;margin-bottom:10px}
+.qtext{font-size:21px;font-weight:600;line-height:1.45;margin-bottom:6px}
+.qtext .blank{color:var(--yellow);font-family:var(--mono)}
+.qhint{color:var(--dim);font-size:13px;margin-bottom:18px;font-style:italic}
+.opts{display:grid;gap:10px}
+.opt{
+  background:var(--panel2);border:1px solid #3b3357;border-radius:12px;color:var(--paper);
+  padding:14px 16px;text-align:left;font-size:16px;font-family:var(--body);cursor:pointer;
+  display:flex;gap:12px;align-items:center;transition:border-color .1s;
+}
+.opt:hover{border-color:var(--yellow)}
+.opt:focus-visible{outline:2px solid var(--yellow);outline-offset:1px}
+.opt kbd{font-family:var(--mono);font-size:11px;background:#16131f;border-radius:6px;padding:3px 7px;color:var(--dim)}
+.opt.right{border-color:var(--mint);background:#1d3a2e}
+.opt.wrong{border-color:var(--coral);background:#3a1d26}
+.opt:disabled{cursor:default;opacity:.85}
+input.answer{
+  width:100%;background:var(--panel2);border:1px solid #3b3357;border-radius:12px;
+  color:var(--paper);font-size:18px;padding:14px 16px;font-family:var(--mono);
+}
+input.answer:focus{outline:2px solid var(--yellow);border-color:var(--yellow)}
+.feedback{
+  margin-top:16px;border-radius:12px;padding:14px 16px;font-size:15px;line-height:1.5;
+  display:none;animation:pop .15s ease;
+}
+.feedback.show{display:block}
+.feedback.good{background:#1d3a2e;border:1px solid var(--mint)}
+.feedback.bad{background:#3a1d26;border:1px solid var(--coral)}
+.feedback .zing{font-weight:800;display:block;margin-bottom:4px}
+.feedback .why{color:#d8d2e8;font-size:14px}
+.feedback .ex{font-family:var(--mono);font-size:13px;color:var(--cyan);display:block;margin-top:6px}
+.combo{
+  position:fixed;top:18px;right:18px;font-family:var(--display);color:var(--yellow);
+  font-size:26px;transform:rotate(6deg);text-shadow:0 2px 0 #000;pointer-events:none;display:none;
+}
+.meta{display:flex;justify-content:space-between;font-family:var(--mono);font-size:12px;color:var(--dim);margin-top:14px}
+
+/* ---------- summary / stats ---------- */
+.bigscore{font-family:var(--display);font-size:64px;color:var(--yellow);line-height:1}
+.statgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:18px 0}
+.stat{background:var(--panel);border:1px solid #352e4e;border-radius:14px;padding:14px}
+.stat .n{font-family:var(--display);font-size:26px;color:var(--yellow)}
+.stat .l{font-family:var(--mono);font-size:10px;letter-spacing:1.5px;color:var(--dim);text-transform:uppercase;margin-top:4px}
+.mastery{margin:8px 0}
+.mastery .label{display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px}
+.mastery .track{height:7px;background:var(--panel2);border-radius:99px;overflow:hidden}
+.mastery .track>div{height:100%;background:var(--mint)}
+.weak{font-size:14px;color:var(--dim);line-height:1.7}
+.weak b{color:var(--coral)}
+h3.sec{font-family:var(--mono);font-size:11px;letter-spacing:2px;color:var(--dim);text-transform:uppercase;margin:26px 0 10px;border-bottom:1px solid #352e4e;padding-bottom:6px}
+.note{font-size:12.5px;color:var(--dim);line-height:1.6;margin-top:20px}
+.note code{font-family:var(--mono);color:var(--cyan)}
+.feedback .eslink{font-family:var(--mono);font-size:11px;color:var(--dim);background:none;border:none;cursor:pointer;text-decoration:underline;padding:6px 0 0;display:block}
+.feedback .es{font-family:var(--mono);font-size:12px;color:var(--dim);margin-top:6px}
+.toast{
+  position:fixed;left:50%;bottom:24px;transform:translateX(-50%);
+  background:var(--yellow);color:#16131f;font-family:var(--mono);font-weight:700;
+  padding:10px 18px;border-radius:99px;font-size:13px;display:none;z-index:9;
+}
+@media (max-width:600px){
+  .opt{padding:16px;font-size:17px}
+  .opt kbd{display:none}
+  .qtext{font-size:19px}
+  .btn{padding:15px 20px}
+  .mode{padding:20px}
+  input.answer{font-size:17px;padding:16px}
+  .hud{font-size:11px;gap:6px}
+  .hud .chip{padding:6px 10px}
+}
+#installBtn{display:none}
+.hearbtn{
+  font-family:var(--mono);font-size:13px;font-weight:700;color:var(--cyan);
+  background:rgba(92,200,255,.08);border:1px solid #2f5a6e;border-radius:10px;
+  padding:9px 14px;margin:0 0 16px;cursor:pointer;display:inline-block;
+}
+.hearbtn:hover{background:rgba(92,200,255,.16)}
+.hearbtn:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+</style>
+</head>
+<body>
+<div class="combo" id="combo"></div>
+<div class="toast" id="toast"></div>
+<div id="app"></div>
+<script>
+'use strict';
+// ================= DATA =================
+// VERBS: [base, past, participle, EN definition, ES fallback, example]
+const VERBS=[
+["be","was/were","been","to exist; to have a state or quality","ser / estar","I was in Bogotá yesterday."],
+["become","became","become","to start to be something","convertirse en","She became my best client."],
+["begin","began","begun","to start","empezar","The meeting began late."],
+["break","broke","broken","to separate into pieces; to stop working","romper","I broke my tablet pen."],
+["bring","brought","brought","to carry something to a place","traer","He brought the new brief."],
+["build","built","built","to make by putting parts together","construir","We built the brand from scratch."],
+["buy","bought","bought","to get something by paying money","comprar","I bought a new camera last year."],
+["catch","caught","caught","to grab something moving; to notice in time","atrapar / pillar","I caught the typo just in time."],
+["choose","chose","chosen","to pick one option from several","elegir","The client chose the second logo."],
+["come","came","come","to move toward the speaker or a place","venir","The invoice came late."],
+["cost","cost","cost","to have a price of","costar","The lens cost a fortune."],
+["cut","cut","cut","to divide or shorten with something sharp","cortar","I cut the video to 30 seconds."],
+["do","did","done","to perform an action or task","hacer (actividad)","I did the research first."],
+["draw","drew","drawn","to make a picture with lines","dibujar","She drew the storyboard by hand."],
+["drink","drank","drunk","to take liquid into your body","beber","I drank too much coffee today."],
+["drive","drove","driven","to operate a vehicle","conducir","He drove to the studio."],
+["eat","ate","eaten","to put food in your mouth and swallow it","comer","We ate lunch during the render."],
+["fall","fell","fallen","to drop down; to happen on a date","caer","The deadline fell on a Sunday."],
+["feel","felt","felt","to experience an emotion or sensation","sentir","I felt confident in the pitch."],
+["fight","fought","fought","to use force or argue against someone","pelear / luchar","They fought over the budget."],
+["find","found","found","to discover something you were looking for","encontrar","I found a better font."],
+["fly","flew","flown","to travel through the air","volar","She flew to Miami for the shoot."],
+["forget","forgot","forgotten","to fail to remember","olvidar","I forgot the password again."],
+["get","got","gotten","to obtain or receive","obtener / conseguir","I got the project!"],
+["give","gave","given","to hand something to someone","dar","They gave me creative freedom."],
+["go","went","gone","to move from here to another place","ir","I went to the print shop."],
+["grow","grew","grown","to become bigger or develop","crecer","My client list grew this year."],
+["have","had","had","to possess; to experience","tener","I had three deadlines this week."],
+["hear","heard","heard","to perceive sound with your ears","oír","I heard the news this morning."],
+["hide","hid","hidden","to put something where it can't be seen","esconder","He hid the layer in Photoshop."],
+["hit","hit","hit","to strike; to reach a target or level","golpear / alcanzar","We hit the deadline."],
+["hold","held","held","to keep in your hands; to organize (a meeting)","sostener","She held the meeting online."],
+["keep","kept","kept","to continue having; to not give back","mantener / guardar","I kept all the drafts."],
+["know","knew","known","to have information or familiarity in your mind","saber / conocer","I knew the answer."],
+["leave","left","left","to go away from a place; to let something stay","dejar / salir","She left the agency in 2020."],
+["lend","lent","lent","to give something temporarily","prestar","He lent me his tripod."],
+["let","let","let","to allow","permitir / dejar","They let me choose the palette."],
+["lose","lost","lost","to no longer have; to not win","perder","We lost the pitch, sadly."],
+["make","made","made","to create or produce something","hacer (crear)","I made three logo options."],
+["mean","meant","meant","to have as a meaning; to intend","significar","What did that feedback mean?"],
+["meet","met","met","to see someone for the first time; to come together","conocer / reunirse","I met the client on Monday."],
+["pay","paid","paid","to give money for something","pagar","They paid the invoice on time."],
+["put","put","put","to place something somewhere","poner","I put the file in the folder."],
+["read","read","read","to look at words and understand them","leer","I read the contract twice."],
+["ride","rode","ridden","to travel on a bike, horse, or vehicle","montar","He rode his bike to the studio."],
+["rise","rose","risen","to go up","subir / elevarse","Prices rose last year."],
+["run","ran","run","to move fast on foot; to manage something","correr / dirigir","She ran the whole campaign."],
+["say","said","said","to speak words","decir","He said yes to the proposal."],
+["see","saw","seen","to perceive with your eyes","ver","I saw the final cut yesterday."],
+["sell","sold","sold","to give something in exchange for money","vender","We sold the idea in one call."],
+["send","sent","sent","to make something go to another place or person","enviar","I sent the proposal yesterday."],
+["set","set","set","to fix or establish; to put in position","fijar / establecer","We set the deadline for Friday."],
+["show","showed","shown","to let someone see something","mostrar","I showed them the mockups."],
+["sing","sang","sung","to make music with your voice","cantar","She sang in the jingle."],
+["sit","sat","sat","to rest on your bottom, e.g. on a chair","sentarse","We sat through a long call."],
+["sleep","slept","slept","to rest with your eyes closed, unconscious","dormir","I slept four hours before the launch."],
+["speak","spoke","spoken","to talk; to use your voice to say things","hablar","I spoke with the art director."],
+["spend","spent","spent","to use money or time","gastar / pasar tiempo","I spent all day rendering."],
+["stand","stood","stood","to be on your feet; to be noticeable (stand out)","estar de pie","The logo stood out."],
+["steal","stole","stolen","to take something that isn't yours","robar","Someone stole my concept!"],
+["take","took","taken","to get with your hands; to need (time)","tomar / llevar","The render took six hours."],
+["teach","taught","taught","to give knowledge or skills to someone","enseñar","She taught me After Effects."],
+["tell","told","told","to communicate information to someone","contar / decir","I told the client the truth."],
+["think","thought","thought","to use your mind; to have an opinion","pensar","I thought it was Tuesday."],
+["throw","threw","thrown","to send something through the air with your hand","lanzar / tirar","He threw away the first draft."],
+["understand","understood","understood","to know the meaning of something","entender","Finally I understood the brief."],
+["wake","woke","woken","to stop sleeping","despertar","I woke up at 5 for the shoot."],
+["wear","wore","worn","to have clothes on your body","llevar puesto","He wore the brand t-shirt."],
+["win","won","won","to be first; to get a prize","ganar","We won the award!"],
+["write","wrote","written","to make words on paper or screen","escribir","She wrote the copy in an hour."],
+["arise","arose","arisen","to appear or happen (a problem, situation)","surgir","A licensing issue arose mid-project."],
+["bear","bore","borne","to carry or tolerate something heavy or hard","soportar / cargar","She bore the pressure with style."],
+["beat","beat","beaten","to defeat; to hit repeatedly","vencer / golpear","We beat three agencies for this account."],
+["bend","bent","bent","to curve something; to not be straight","doblar","I bent the path tool to my will."],
+["bet","bet","bet","to risk money on a result; to be sure","apostar","I bet the client picks option B."],
+["bind","bound","bound","to tie together; to legally oblige","atar / vincular","The contract binds us until June."],
+["bite","bit","bitten","to cut with your teeth","morder","Don't bite off more than you can chew."],
+["bleed","bled","bled","to lose blood; (design) to extend past the page edge","sangrar","The image bled off the page — on purpose."],
+["blow","blew","blown","to push air; to impress (blow away)","soplar","The demo blew them away."],
+["breed","bred","bred","to produce offspring; to cause something to develop","criar / generar","Tight deadlines breed bad decisions."],
+["broadcast","broadcast","broadcast","to send out on TV, radio, or online","transmitir","They broadcast the launch live."],
+["burst","burst","burst","to explode or break open suddenly","reventar","He burst into the room with news."],
+["cast","cast","cast","to throw; to choose actors; to project (light, shadow)","lanzar / proyectar","The lamp cast a perfect shadow."],
+["cling","clung","clung","to hold on tightly","aferrarse","He clung to the old logo for years."],
+["creep","crept","crept","to move slowly and quietly","arrastrarse","Scope creep crept into the project."],
+["deal","dealt","dealt","to handle a situation; to distribute","tratar / repartir","I dealt with the feedback calmly."],
+["dig","dug","dug","to make a hole in the ground; (slang) to like","cavar","I dug through old files for the source."],
+["dive","dove","dived","to jump into water head first; to go deep into something","sumergirse","Let's dive into the analytics."],
+["feed","fed","fed","to give food; to supply data or material","alimentar","I fed the renders into the timeline."],
+["flee","fled","fled","to escape from danger quickly","huir","He fled the meeting before Q&A."],
+["forbid","forbade","forbidden","to not allow; to prohibit","prohibir","The brand book forbids stretching the logo."],
+["forgive","forgave","forgiven","to stop being angry about someone's mistake","perdonar","I forgave the late payment. Once."],
+["freeze","froze","frozen","to become solid from cold; to stop moving","congelar","The app froze during the export."],
+["hang","hung","hung","to attach from above; to suspend","colgar","We hung the prints in the gallery."],
+["hurt","hurt","hurt","to cause pain or damage","herir / doler","That feedback hurt, honestly."],
+["kneel","knelt","knelt","to go down on your knees","arrodillarse","He knelt to get the low-angle shot."],
+["lay","laid","laid
